@@ -169,8 +169,8 @@ export const StationsPage: React.FC = () => {
             <Link
               to="/stations/add"
               style={{
-                backgroundColor: '#10b981',
-                color: '#0b1322',
+                backgroundColor: '#79b9ad',
+                color: '#151b24',
                 padding: '0.65rem 1.25rem',
                 borderRadius: '8px',
                 textDecoration: 'none',
@@ -189,8 +189,8 @@ export const StationsPage: React.FC = () => {
           <div
             style={{
               display: 'flex',
-              backgroundColor: '#131e32',
-              border: '1px solid #1e293b',
+              backgroundColor: '#212b38',
+              border: '1px solid #344153',
               borderRadius: '8px',
               padding: '2px',
             }}
@@ -198,8 +198,8 @@ export const StationsPage: React.FC = () => {
             <button
               onClick={() => setActiveTab('map')}
               style={{
-                backgroundColor: activeTab === 'map' ? '#1e293b' : 'transparent',
-                color: activeTab === 'map' ? '#10b981' : '#94a3b8',
+                backgroundColor: activeTab === 'map' ? '#344153' : 'transparent',
+                color: activeTab === 'map' ? '#79b9ad' : '#94a3b8',
                 border: 'none',
                 padding: '0.5rem 0.85rem',
                 borderRadius: '6px',
@@ -213,8 +213,8 @@ export const StationsPage: React.FC = () => {
             <button
               onClick={() => setActiveTab('cards')}
               style={{
-                backgroundColor: activeTab === 'cards' ? '#1e293b' : 'transparent',
-                color: activeTab === 'cards' ? '#10b981' : '#94a3b8',
+                backgroundColor: activeTab === 'cards' ? '#344153' : 'transparent',
+                color: activeTab === 'cards' ? '#79b9ad' : '#94a3b8',
                 border: 'none',
                 padding: '0.5rem 0.85rem',
                 borderRadius: '6px',
@@ -282,8 +282,8 @@ export const StationsPage: React.FC = () => {
         ) : stations.length === 0 ? (
           <div
             style={{
-              backgroundColor: '#131e32',
-              border: '1px dashed #1e293b',
+              backgroundColor: '#212b38',
+              border: '1px dashed #344153',
               borderRadius: '12px',
               padding: '3rem 1.5rem',
               textAlign: 'center',
@@ -313,8 +313,8 @@ export const StationsPage: React.FC = () => {
                 <div
                   key={st.station_id}
                   style={{
-                    backgroundColor: '#131e32',
-                    border: '1px solid #1e293b',
+                    backgroundColor: '#212b38',
+                    border: '1px solid #344153',
                     borderRadius: '12px',
                     padding: '1.25rem',
                     display: 'flex',
@@ -328,9 +328,9 @@ export const StationsPage: React.FC = () => {
                         style={{
                           fontSize: '0.75rem',
                           fontWeight: 700,
-                          backgroundColor: '#0f172a',
+                          backgroundColor: '#19212c',
                           border: '1px solid #334155',
-                          color: '#38bdf8',
+                          color: '#a4bed4',
                           padding: '0.2rem 0.6rem',
                           borderRadius: '4px',
                         }}
@@ -342,7 +342,7 @@ export const StationsPage: React.FC = () => {
                           style={{
                             fontSize: '0.8rem',
                             fontWeight: 700,
-                            color: '#10b981',
+                            color: '#79b9ad',
                             backgroundColor: 'rgba(16, 185, 129, 0.15)',
                             padding: '0.2rem 0.5rem',
                             borderRadius: '4px',
@@ -366,7 +366,7 @@ export const StationsPage: React.FC = () => {
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'space-between',
-                        backgroundColor: '#0f172a',
+                        backgroundColor: '#19212c',
                         padding: '0.6rem 0.85rem',
                         borderRadius: '6px',
                         marginBottom: '0.85rem',
@@ -375,7 +375,7 @@ export const StationsPage: React.FC = () => {
                     >
                       <div>
                         <span style={{ color: '#94a3b8' }}>Bays: </span>
-                        <strong style={{ color: onlineCount > 0 ? '#10b981' : '#f87171' }}>
+                        <strong style={{ color: onlineCount > 0 ? '#79b9ad' : '#f87171' }}>
                           {onlineCount} / {totalCount} Online
                         </strong>
                       </div>
@@ -403,8 +403,8 @@ export const StationsPage: React.FC = () => {
                                 fontSize: '0.75rem',
                                 padding: '0.2rem 0.5rem',
                                 borderRadius: '4px',
-                                backgroundColor: '#1e293b',
-                                color: ch.operational_status === 'ONLINE' ? '#10b981' : '#fbbf24',
+                                backgroundColor: '#344153',
+                                color: ch.operational_status === 'ONLINE' ? '#79b9ad' : '#fbbf24',
                                 border: '1px solid #334155',
                               }}
                             >
@@ -421,13 +421,13 @@ export const StationsPage: React.FC = () => {
                   </div>
 
                   {/* Actions */}
-                  <div style={{ display: 'flex', gap: '0.5rem', borderTop: '1px solid #1e293b', paddingTop: '0.85rem' }}>
+                  <div style={{ display: 'flex', gap: '0.5rem', borderTop: '1px solid #344153', paddingTop: '0.85rem' }}>
                     <Link
                       to={`/stations/${st.station_id}`}
                       style={{
                         flex: 1,
                         textAlign: 'center',
-                        backgroundColor: '#1e293b',
+                        backgroundColor: '#344153',
                         color: '#f8fafc',
                         padding: '0.5rem 0.75rem',
                         borderRadius: '6px',
@@ -444,7 +444,7 @@ export const StationsPage: React.FC = () => {
                         style={{
                           backgroundColor: 'rgba(6, 182, 212, 0.1)',
                           border: '1px solid rgba(6, 182, 212, 0.3)',
-                          color: '#06b6d4',
+                          color: '#87a8c4',
                           padding: '0.5rem 0.75rem',
                           borderRadius: '6px',
                           textDecoration: 'none',

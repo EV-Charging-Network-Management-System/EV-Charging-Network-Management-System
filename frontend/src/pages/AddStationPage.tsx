@@ -122,8 +122,8 @@ export const AddStationPage: React.FC = () => {
       {/* Quick Coordinate Presets */}
       <div
         style={{
-          backgroundColor: '#131e32',
-          border: '1px solid #1e293b',
+          backgroundColor: '#212b38',
+          border: '1px solid #344153',
           borderRadius: '10px',
           padding: '1rem',
           marginBottom: '1.5rem',
@@ -139,9 +139,9 @@ export const AddStationPage: React.FC = () => {
               type="button"
               onClick={() => applyPreset(p)}
               style={{
-                backgroundColor: '#0f172a',
+                backgroundColor: '#19212c',
                 border: '1px solid #334155',
-                color: '#38bdf8',
+                color: '#a4bed4',
                 padding: '0.35rem 0.75rem',
                 borderRadius: '6px',
                 fontSize: '0.8rem',
@@ -157,8 +157,8 @@ export const AddStationPage: React.FC = () => {
       <form
         onSubmit={handleSubmit}
         style={{
-          backgroundColor: '#131e32',
-          border: '1px solid #1e293b',
+          backgroundColor: '#212b38',
+          border: '1px solid #344153',
           borderRadius: '12px',
           padding: '2rem',
           display: 'flex',
@@ -178,8 +178,8 @@ export const AddStationPage: React.FC = () => {
             onChange={(e) => setStationName(e.target.value)}
             style={{
               width: '100%',
-              backgroundColor: '#0f172a',
-              border: '1px solid #1e293b',
+              backgroundColor: '#19212c',
+              border: '1px solid #344153',
               color: '#f8fafc',
               padding: '0.75rem 1rem',
               borderRadius: '8px',
@@ -201,8 +201,8 @@ export const AddStationPage: React.FC = () => {
               onChange={(e) => setAddress(e.target.value)}
               style={{
                 width: '100%',
-                backgroundColor: '#0f172a',
-                border: '1px solid #1e293b',
+                backgroundColor: '#19212c',
+                border: '1px solid #344153',
                 color: '#f8fafc',
                 padding: '0.75rem 1rem',
                 borderRadius: '8px',
@@ -222,8 +222,8 @@ export const AddStationPage: React.FC = () => {
               onChange={(e) => setCity(e.target.value)}
               style={{
                 width: '100%',
-                backgroundColor: '#0f172a',
-                border: '1px solid #1e293b',
+                backgroundColor: '#19212c',
+                border: '1px solid #344153',
                 color: '#f8fafc',
                 padding: '0.75rem 1rem',
                 borderRadius: '8px',
@@ -247,8 +247,8 @@ export const AddStationPage: React.FC = () => {
               onChange={(e) => setLatitude(e.target.value)}
               style={{
                 width: '100%',
-                backgroundColor: '#0f172a',
-                border: '1px solid #1e293b',
+                backgroundColor: '#19212c',
+                border: '1px solid #344153',
                 color: '#f8fafc',
                 padding: '0.75rem 1rem',
                 borderRadius: '8px',
@@ -269,8 +269,8 @@ export const AddStationPage: React.FC = () => {
               onChange={(e) => setLongitude(e.target.value)}
               style={{
                 width: '100%',
-                backgroundColor: '#0f172a',
-                border: '1px solid #1e293b',
+                backgroundColor: '#19212c',
+                border: '1px solid #344153',
                 color: '#f8fafc',
                 padding: '0.75rem 1rem',
                 borderRadius: '8px',
@@ -293,8 +293,8 @@ export const AddStationPage: React.FC = () => {
               onChange={(e) => setOpeningTime(e.target.value)}
               style={{
                 width: '100%',
-                backgroundColor: '#0f172a',
-                border: '1px solid #1e293b',
+                backgroundColor: '#19212c',
+                border: '1px solid #344153',
                 color: '#f8fafc',
                 padding: '0.75rem 1rem',
                 borderRadius: '8px',
@@ -312,8 +312,8 @@ export const AddStationPage: React.FC = () => {
               onChange={(e) => setClosingTime(e.target.value)}
               style={{
                 width: '100%',
-                backgroundColor: '#0f172a',
-                border: '1px solid #1e293b',
+                backgroundColor: '#19212c',
+                border: '1px solid #344153',
                 color: '#f8fafc',
                 padding: '0.75rem 1rem',
                 borderRadius: '8px',
@@ -330,8 +330,8 @@ export const AddStationPage: React.FC = () => {
               onChange={(e) => setStatus(e.target.value as StationStatus)}
               style={{
                 width: '100%',
-                backgroundColor: '#0f172a',
-                border: '1px solid #1e293b',
+                backgroundColor: '#19212c',
+                border: '1px solid #344153',
                 color: '#f8fafc',
                 padding: '0.75rem 1rem',
                 borderRadius: '8px',
@@ -344,7 +344,7 @@ export const AddStationPage: React.FC = () => {
           </div>
         </div>
 
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', borderTop: '1px solid #1e293b', paddingTop: '1.25rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', borderTop: '1px solid #344153', paddingTop: '1.25rem' }}>
           <button
             type="button"
             onClick={() => navigate('/stations')}
@@ -365,9 +365,9 @@ export const AddStationPage: React.FC = () => {
             type="submit"
             disabled={submitting}
             style={{
-              backgroundColor: '#10b981',
+              backgroundColor: '#79b9ad',
               border: 'none',
-              color: '#0b1322',
+              color: '#151b24',
               padding: '0.75rem 1.75rem',
               borderRadius: '8px',
               cursor: submitting ? 'not-allowed' : 'pointer',

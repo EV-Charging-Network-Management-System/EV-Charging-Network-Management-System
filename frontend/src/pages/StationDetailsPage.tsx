@@ -95,8 +95,8 @@ export const StationDetailsPage: React.FC = () => {
         <Link
           to="/stations"
           style={{
-            backgroundColor: '#10b981',
-            color: '#0b1322',
+            backgroundColor: '#79b9ad',
+            color: '#151b24',
             padding: '0.75rem 1.5rem',
             borderRadius: '8px',
             fontWeight: 600,
@@ -126,8 +126,8 @@ export const StationDetailsPage: React.FC = () => {
             <Link
               to={`/stations/${station.station_id}/chargers/add`}
               style={{
-                backgroundColor: '#10b981',
-                color: '#0b1322',
+                backgroundColor: '#79b9ad',
+                color: '#151b24',
                 padding: '0.5rem 1rem',
                 borderRadius: '8px',
                 textDecoration: 'none',
@@ -142,7 +142,7 @@ export const StationDetailsPage: React.FC = () => {
               style={{
                 backgroundColor: 'rgba(6, 182, 212, 0.1)',
                 border: '1px solid rgba(6, 182, 212, 0.3)',
-                color: '#06b6d4',
+                color: '#87a8c4',
                 padding: '0.5rem 1rem',
                 borderRadius: '8px',
                 textDecoration: 'none',
@@ -161,7 +161,7 @@ export const StationDetailsPage: React.FC = () => {
           style={{
             backgroundColor: 'rgba(16, 185, 129, 0.15)',
             border: '1px solid rgba(16, 185, 129, 0.3)',
-            color: '#6ee7b7',
+            color: '#a7d2c8',
             padding: '1rem',
             borderRadius: '8px',
             marginBottom: '1.5rem',
@@ -175,8 +175,8 @@ export const StationDetailsPage: React.FC = () => {
       {/* Hero Overview Card */}
       <div
         style={{
-          backgroundColor: '#131e32',
-          border: '1px solid #1e293b',
+          backgroundColor: '#212b38',
+          border: '1px solid #344153',
           borderRadius: '12px',
           padding: '2rem',
           marginBottom: '2rem',
@@ -193,9 +193,9 @@ export const StationDetailsPage: React.FC = () => {
               style={{
                 fontSize: '0.75rem',
                 fontWeight: 700,
-                backgroundColor: '#0f172a',
+                backgroundColor: '#19212c',
                 border: '1px solid #334155',
-                color: '#38bdf8',
+                color: '#a4bed4',
                 padding: '0.2rem 0.6rem',
                 borderRadius: '4px',
               }}
@@ -207,7 +207,7 @@ export const StationDetailsPage: React.FC = () => {
                 fontSize: '0.75rem',
                 fontWeight: 600,
                 backgroundColor: station.status === 'ACTIVE' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)',
-                color: station.status === 'ACTIVE' ? '#10b981' : '#f87171',
+                color: station.status === 'ACTIVE' ? '#79b9ad' : '#f87171',
                 padding: '0.2rem 0.6rem',
                 borderRadius: '4px',
               }}
@@ -262,11 +262,11 @@ export const StationDetailsPage: React.FC = () => {
           <div style={{ fontSize: '0.8rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 600 }}>
             Operational Bays
           </div>
-          <div style={{ fontSize: '2rem', fontWeight: 800, color: '#10b981', margin: '0.25rem 0' }}>
+          <div style={{ fontSize: '2rem', fontWeight: 800, color: '#79b9ad', margin: '0.25rem 0' }}>
             {onlineBays}
             <span style={{ fontSize: '1.1rem', fontWeight: 500, color: '#94a3b8' }}> / {station.chargers.length}</span>
           </div>
-          <div style={{ fontSize: '0.75rem', color: '#6ee7b7' }}>
+          <div style={{ fontSize: '0.75rem', color: '#a7d2c8' }}>
             {onlineBays > 0 ? 'Ready for charging' : 'No online bays'}
           </div>
         </div>
@@ -282,7 +282,7 @@ export const StationDetailsPage: React.FC = () => {
             <Link
               to={`/stations/${station.station_id}/chargers/add`}
               style={{
-                color: '#10b981',
+                color: '#79b9ad',
                 textDecoration: 'none',
                 fontSize: '0.85rem',
                 fontWeight: 600,
@@ -296,8 +296,8 @@ export const StationDetailsPage: React.FC = () => {
         {station.chargers.length === 0 ? (
           <div
             style={{
-              backgroundColor: '#131e32',
-              border: '1px dashed #1e293b',
+              backgroundColor: '#212b38',
+              border: '1px dashed #344153',
               borderRadius: '12px',
               padding: '3rem',
               textAlign: 'center',
@@ -313,8 +313,8 @@ export const StationDetailsPage: React.FC = () => {
               <div
                 key={charger.charger_id}
                 style={{
-                  backgroundColor: '#131e32',
-                  border: '1px solid #1e293b',
+                  backgroundColor: '#212b38',
+                  border: '1px solid #344153',
                   borderRadius: '10px',
                   padding: '1.25rem',
                   display: 'flex',
@@ -328,7 +328,7 @@ export const StationDetailsPage: React.FC = () => {
                       style={{
                         fontFamily: 'monospace',
                         fontWeight: 700,
-                        backgroundColor: '#0f172a',
+                        backgroundColor: '#19212c',
                         border: '1px solid #334155',
                         color: '#f8fafc',
                         padding: '0.25rem 0.6rem',
@@ -345,7 +345,7 @@ export const StationDetailsPage: React.FC = () => {
                     <span style={{ fontSize: '1.1rem', fontWeight: 700, color: '#f8fafc' }}>
                       {charger.connector_type?.type_name || `Connector #${charger.connector_type_id}`}
                     </span>
-                    <span style={{ fontSize: '1.1rem', fontWeight: 800, color: '#10b981' }}>
+                    <span style={{ fontSize: '1.1rem', fontWeight: 800, color: '#79b9ad' }}>
                       {charger.power_kw} kW
                     </span>
                   </div>
@@ -356,12 +356,12 @@ export const StationDetailsPage: React.FC = () => {
                 </div>
 
                 {canManage && (
-                  <div style={{ borderTop: '1px solid #1e293b', paddingTop: '0.75rem' }}>
+                  <div style={{ borderTop: '1px solid #344153', paddingTop: '0.75rem' }}>
                     <button
                       onClick={() => handleOpenStatusModal(charger)}
                       style={{
                         width: '100%',
-                        backgroundColor: '#1e293b',
+                        backgroundColor: '#344153',
                         border: '1px solid #334155',
                         color: '#f8fafc',
                         padding: '0.45rem',
@@ -400,8 +400,8 @@ export const StationDetailsPage: React.FC = () => {
         >
           <div
             style={{
-              backgroundColor: '#131e32',
-              border: '1px solid #1e293b',
+              backgroundColor: '#212b38',
+              border: '1px solid #344153',
               borderRadius: '12px',
               padding: '1.75rem',
               maxWidth: '480px',
@@ -441,8 +441,8 @@ export const StationDetailsPage: React.FC = () => {
                   onChange={(e) => setNewStatus(e.target.value as ChargerStatus)}
                   style={{
                     width: '100%',
-                    backgroundColor: '#0f172a',
-                    border: '1px solid #1e293b',
+                    backgroundColor: '#19212c',
+                    border: '1px solid #344153',
                     color: '#f8fafc',
                     padding: '0.65rem 0.85rem',
                     borderRadius: '6px',
@@ -467,8 +467,8 @@ export const StationDetailsPage: React.FC = () => {
                   onChange={(e) => setStatusReason(e.target.value)}
                   style={{
                     width: '100%',
-                    backgroundColor: '#0f172a',
-                    border: '1px solid #1e293b',
+                    backgroundColor: '#19212c',
+                    border: '1px solid #344153',
                     color: '#f8fafc',
                     padding: '0.65rem 0.85rem',
                     borderRadius: '6px',
@@ -499,9 +499,9 @@ export const StationDetailsPage: React.FC = () => {
                   type="submit"
                   disabled={updating}
                   style={{
-                    backgroundColor: '#10b981',
+                    backgroundColor: '#79b9ad',
                     border: 'none',
-                    color: '#0b1322',
+                    color: '#151b24',
                     padding: '0.5rem 1.25rem',
                     borderRadius: '6px',
                     cursor: updating ? 'not-allowed' : 'pointer',

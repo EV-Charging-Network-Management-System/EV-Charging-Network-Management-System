@@ -49,8 +49,8 @@ export const VehicleDetailsPage: React.FC = () => {
         <button
           onClick={() => navigate('/vehicles')}
           style={{
-            backgroundColor: '#10b981',
-            color: '#0b1322',
+            backgroundColor: '#79b9ad',
+            color: '#151b24',
             border: 'none',
             padding: '0.75rem 1.5rem',
             borderRadius: '8px',
@@ -87,7 +87,7 @@ export const VehicleDetailsPage: React.FC = () => {
             gap: '0.4rem',
             backgroundColor: 'rgba(6, 182, 212, 0.1)',
             border: '1px solid rgba(6, 182, 212, 0.4)',
-            color: '#06b6d4',
+            color: '#87a8c4',
             padding: '0.5rem 1rem',
             borderRadius: '8px',
             textDecoration: 'none',
@@ -102,8 +102,8 @@ export const VehicleDetailsPage: React.FC = () => {
       {/* Main Hero Card */}
       <div
         style={{
-          backgroundColor: '#131e32',
-          border: '1px solid #1e293b',
+          backgroundColor: '#212b38',
+          border: '1px solid #344153',
           borderRadius: '12px',
           padding: '2rem',
           marginBottom: '1.5rem',
@@ -119,7 +119,7 @@ export const VehicleDetailsPage: React.FC = () => {
             style={{
               fontFamily: 'monospace',
               fontWeight: 700,
-              backgroundColor: '#0b1322',
+              backgroundColor: '#151b24',
               border: '1px solid #334155',
               color: '#f8fafc',
               padding: '0.4rem 0.9rem',
@@ -154,12 +154,12 @@ export const VehicleDetailsPage: React.FC = () => {
           <div style={{ fontSize: '0.8rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 600 }}>
             Battery Pack
           </div>
-          <div style={{ fontSize: '1.75rem', fontWeight: 700, color: '#10b981', margin: '0.25rem 0' }}>
+          <div style={{ fontSize: '1.75rem', fontWeight: 700, color: '#79b9ad', margin: '0.25rem 0' }}>
             {vehicle.battery_capacity_kwh ? `${vehicle.battery_capacity_kwh}` : 'N/A'}
             <span style={{ fontSize: '0.9rem', fontWeight: 500, marginLeft: '0.2rem' }}>kWh</span>
           </div>
           {estimatedRangeKm && (
-            <div style={{ fontSize: '0.75rem', color: '#6ee7b7' }}>
+            <div style={{ fontSize: '0.75rem', color: '#a7d2c8' }}>
               Est. ~{estimatedRangeKm} km range
             </div>
           )}
@@ -171,8 +171,8 @@ export const VehicleDetailsPage: React.FC = () => {
         {/* Connector Standards Breakdown */}
         <div
           style={{
-            backgroundColor: '#131e32',
-            border: '1px solid #1e293b',
+            backgroundColor: '#212b38',
+            border: '1px solid #344153',
             borderRadius: '12px',
             padding: '1.75rem',
           }}
@@ -190,14 +190,14 @@ export const VehicleDetailsPage: React.FC = () => {
                 <div
                   key={c.connector_type_id}
                   style={{
-                    backgroundColor: '#0f172a',
-                    border: '1px solid #1e293b',
+                    backgroundColor: '#19212c',
+                    border: '1px solid #344153',
                     borderRadius: '8px',
                     padding: '0.85rem 1rem',
                   }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontWeight: 700, color: '#10b981', fontSize: '1rem' }}>
+                    <span style={{ fontWeight: 700, color: '#79b9ad', fontSize: '1rem' }}>
                       {c.type_name}
                     </span>
                     <span
@@ -205,7 +205,7 @@ export const VehicleDetailsPage: React.FC = () => {
                         fontSize: '0.7rem',
                         fontWeight: 600,
                         backgroundColor: 'rgba(16, 185, 129, 0.15)',
-                        color: '#6ee7b7',
+                        color: '#a7d2c8',
                         padding: '0.2rem 0.5rem',
                         borderRadius: '4px',
                       }}
@@ -224,7 +224,7 @@ export const VehicleDetailsPage: React.FC = () => {
           ) : (
             <div
               style={{
-                backgroundColor: '#0f172a',
+                backgroundColor: '#19212c',
                 border: '1px dashed #334155',
                 borderRadius: '8px',
                 padding: '1.5rem',
@@ -237,7 +237,7 @@ export const VehicleDetailsPage: React.FC = () => {
               <div style={{ marginTop: '0.75rem' }}>
                 <Link
                   to={`/vehicles/${vehicle.vehicle_id}/edit`}
-                  style={{ color: '#06b6d4', textDecoration: 'none', fontWeight: 600, fontSize: '0.85rem' }}
+                  style={{ color: '#87a8c4', textDecoration: 'none', fontWeight: 600, fontSize: '0.85rem' }}
                 >
                   + Assign Connector Types
                 </Link>
@@ -249,8 +249,8 @@ export const VehicleDetailsPage: React.FC = () => {
         {/* Technical & Operational Metadata */}
         <div
           style={{
-            backgroundColor: '#131e32',
-            border: '1px solid #1e293b',
+            backgroundColor: '#212b38',
+            border: '1px solid #344153',
             borderRadius: '12px',
             padding: '1.75rem',
             display: 'flex',
@@ -267,15 +267,15 @@ export const VehicleDetailsPage: React.FC = () => {
             </p>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #1e293b', paddingBottom: '0.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #344153', paddingBottom: '0.5rem' }}>
                 <span style={{ fontSize: '0.85rem', color: '#94a3b8' }}>Vehicle Database ID:</span>
                 <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#f8fafc' }}>#{vehicle.vehicle_id}</span>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #1e293b', paddingBottom: '0.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #344153', paddingBottom: '0.5rem' }}>
                 <span style={{ fontSize: '0.85rem', color: '#94a3b8' }}>Owner User ID:</span>
                 <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#f8fafc' }}>#{vehicle.owner_user_id}</span>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #1e293b', paddingBottom: '0.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #344153', paddingBottom: '0.5rem' }}>
                 <span style={{ fontSize: '0.85rem', color: '#94a3b8' }}>Registration Date:</span>
                 <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#f8fafc' }}>
                   {new Date(vehicle.created_at).toLocaleString()}
@@ -283,7 +283,7 @@ export const VehicleDetailsPage: React.FC = () => {
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <span style={{ fontSize: '0.85rem', color: '#94a3b8' }}>Network Compatibility:</span>
-                <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#10b981' }}>Verified</span>
+                <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#79b9ad' }}>Verified</span>
               </div>
             </div>
           </div>
@@ -294,7 +294,7 @@ export const VehicleDetailsPage: React.FC = () => {
               style={{
                 flex: 1,
                 textAlign: 'center',
-                backgroundColor: '#1e293b',
+                backgroundColor: '#344153',
                 color: '#f8fafc',
                 padding: '0.65rem',
                 borderRadius: '8px',
@@ -310,8 +310,8 @@ export const VehicleDetailsPage: React.FC = () => {
               style={{
                 flex: 1,
                 textAlign: 'center',
-                backgroundColor: '#10b981',
-                color: '#0b1322',
+                backgroundColor: '#79b9ad',
+                color: '#151b24',
                 padding: '0.65rem',
                 borderRadius: '8px',
                 textDecoration: 'none',

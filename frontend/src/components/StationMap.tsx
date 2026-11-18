@@ -69,7 +69,7 @@ export const StationMap: React.FC<StationMapProps> = ({
           <div style="
             width: 20px;
             height: 20px;
-            background-color: #06b6d4;
+            background-color: #87a8c4;
             border: 3px solid #ffffff;
             border-radius: 50%;
             box-shadow: 0 0 12px rgba(6, 182, 212, 0.9);
@@ -81,7 +81,7 @@ export const StationMap: React.FC<StationMapProps> = ({
 
       const userMarker = L.marker([userLocation.lat, userLocation.lng], { icon: userIcon })
         .bindPopup(`
-          <div style="font-family: system-ui; font-size: 13px; color: #0b1322;">
+          <div style="font-family: system-ui; font-size: 13px; color: #151b24;">
             <strong>📍 Your Location</strong>
           </div>
         `);
@@ -102,7 +102,7 @@ export const StationMap: React.FC<StationMapProps> = ({
       const onlineCount = station.online_chargers ?? 0;
       const totalCount = station.total_chargers ?? (station.chargers?.length || 0);
 
-      const markerColor = onlineCount > 0 ? '#10b981' : '#ef4444';
+      const markerColor = onlineCount > 0 ? '#79b9ad' : '#ef4444';
 
       const stationIcon = L.divIcon({
         className: 'station-pin',
@@ -110,7 +110,7 @@ export const StationMap: React.FC<StationMapProps> = ({
           <div style="
             width: ${isSelected ? '36px' : '30px'};
             height: ${isSelected ? '36px' : '30px'};
-            background-color: ${isSelected ? '#06b6d4' : markerColor};
+            background-color: ${isSelected ? '#87a8c4' : markerColor};
             border: 2px solid #ffffff;
             border-radius: 50%;
             display: flex;
@@ -133,15 +133,15 @@ export const StationMap: React.FC<StationMapProps> = ({
       const marker = L.marker([lat, lng], { icon: stationIcon });
 
       const popupHtml = `
-        <div style="font-family: system-ui, sans-serif; min-width: 200px; color: #0f172a;">
-          <h3 style="margin: 0 0 4px 0; font-size: 15px; font-weight: 700; color: #0f172a;">
+        <div style="font-family: system-ui, sans-serif; min-width: 200px; color: #19212c;">
+          <h3 style="margin: 0 0 4px 0; font-size: 15px; font-weight: 700; color: #19212c;">
             ${station.station_name}
           </h3>
           <p style="margin: 0 0 8px 0; font-size: 12px; color: #64748b; line-height: 1.3;">
             ${station.address}, ${station.city}
           </p>
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 12px;">
-            <span style="font-weight: 600; color: ${onlineCount > 0 ? '#059669' : '#dc2626'};">
+            <span style="font-weight: 600; color: ${onlineCount > 0 ? '#367468' : '#dc2626'};">
               ● ${onlineCount} / ${totalCount} Bays Online
             </span>
             <span style="background: #e2e8f0; padding: 2px 6px; border-radius: 4px; font-size: 11px;">
@@ -153,7 +153,7 @@ export const StationMap: React.FC<StationMapProps> = ({
             style="
               display: block;
               text-align: center;
-              background-color: #10b981;
+              background-color: #79b9ad;
               color: #ffffff;
               padding: 6px 10px;
               border-radius: 6px;
@@ -197,7 +197,7 @@ export const StationMap: React.FC<StationMapProps> = ({
         height: '480px',
         borderRadius: '12px',
         overflow: 'hidden',
-        border: '1px solid #1e293b',
+        border: '1px solid #344153',
         boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
       }}
     />

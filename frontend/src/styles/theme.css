@@ -1,19 +1,25 @@
-/* EV Charging Management System - Modern Dark Aesthetic */
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+
+/* EV Charging Management System - Shared application theme */
 :root {
-  --color-primary: #10b981;
-  --color-primary-dark: #059669;
-  --color-accent: #06b6d4;
-  --color-bg-dark: #0b1322;
-  --color-card-bg: #131e32;
-  --color-border: #1e293b;
+  --color-primary: #79b9ad;
+  --color-primary-dark: #367468;
+  --color-accent: #87a8c4;
+  --color-bg-dark: #151b24;
+  --color-card-bg: #212b38;
+  --color-border: #344153;
   --color-text-main: #f8fafc;
   --color-text-muted: #94a3b8;
 }
 
+@layer base {
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+}
 }
 
 body {
@@ -41,3 +47,74 @@ input:focus, select:focus, textarea:focus, button:focus {
   }
 }
 
+
+:root {
+  --color-emerald-50: #eef6f3;
+  --color-emerald-100: #dbece6;
+  --color-emerald-200: #bfdad0;
+  --color-emerald-500: #508c80;
+  --color-emerald-600: #367468;
+  --color-emerald-700: #295c52;
+  --color-emerald-800: #214940;
+}
+
+:where(button, input, select, textarea) { font: inherit; }
+:where(button:not(:disabled)) { cursor: pointer; }
+:where(a, button, input, select, textarea):focus-visible {
+  outline: 2px solid #508c80;
+  outline-offset: 3px;
+}
+
+.app-header {
+  background: #1a222d;
+  border-bottom: 1px solid #344153;
+  color: #f8fafc;
+}
+.app-header-top, .app-nav {
+  max-width:  eightyrem;
+  max-width: 80rem;
+  margin-inline: auto;
+  padding-inline: clamp(1rem, 4vw, 2.5rem);
+  display: flex;
+  align-items: center;
+}
+.app-header-top { min-height: 4rem; justify-content: space-between; gap: 1rem; }
+.app-brand, .app-account, .app-nav { gap: .65rem; }
+.app-brand, .app-account { display: flex; align-items: center; }
+.app-brand { color: inherit; font-weight: 700; text-decoration: none; }
+.app-brand svg { color: #a7d2c8; flex-shrink: 0; }
+.app-account a { color: #cbd5e1; text-decoration: none; font-size: .875rem; }
+.app-account button {
+  background: transparent; color: inherit; border: 1px solid #526177;
+  border-radius: .4rem; padding: .35rem .65rem; white-space: nowrap; font-size: .875rem;
+}
+.app-nav { overflow-x: auto; }
+.app-nav a {
+  color: #b8c3d1; text-decoration: none; white-space: nowrap;
+  padding: .7rem .6rem; font-size: .875rem; border-bottom: 2px solid transparent;
+}
+.app-nav a:hover, .app-nav a[aria-current="page"] { color: #fff; background: #232f3d; }
+.app-nav a[aria-current="page"] { border-color: #92c7bb; }
+
+.pricing-page {
+  background: #f2f4f6; color: #202a37;
+  min-height: calc(100vh - 7rem);
+  padding: clamp(1.25rem, 5vw, 3.5rem) clamp(1rem, 4vw, 2rem);
+}
+.pricing-heading, .pricing-layout { max-width: 70rem; margin-inline: auto; }
+.pricing-heading { margin-bottom: 1.75rem; }
+.pricing-heading h1 { color: #202a37; font-size: clamp(1.85rem, 4vw, 2.5rem); letter-spacing: -.04em; }
+.pricing-heading p { color: #516071; margin-top: .5rem; }
+.pricing-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.25rem; align-items: start; }
+.pricing-card, .pricing-result > div { background: white; border: 1px solid #d8dfe6; border-radius: .75rem; box-shadow: none; }
+.pricing-card { padding: clamp(1rem, 3vw, 1.5rem); }
+.pricing-card :is(select, input:not([type="range"])) { min-height: 2.75rem; background: white; color: #202a37; }
+.pricing-card button[type="submit"] { background: #295c52; border: 1px solid transparent; }
+.pricing-card button[type="submit"]:hover:not(:disabled) { background: #214940; }
+.pricing-card input[type="range"] { appearance: auto; }
+.pricing-card button[type="button"] { border: 1px solid #d8dfe6; color: #344153; }
+.quote-header { background: #263747; }
+.quote-header > div { gap: .75rem; flex-wrap: wrap; }
+@media (min-width: 800px) {
+  .pricing-layout { grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); }
+}

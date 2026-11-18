@@ -30,17 +30,17 @@ export const ProfilePage: React.FC = () => {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0b1322', color: '#f8fafc', fontFamily: 'system-ui, sans-serif' }}>
+    <div style={{ minHeight: '100vh', background: '#151b24', color: '#f8fafc', fontFamily: 'system-ui, sans-serif' }}>
       <Navbar />
       <div style={{ maxWidth: '640px', margin: '3rem auto', padding: '0 1rem' }}>
-        <div style={{ background: '#131e32', border: '1px solid #1e293b', borderRadius: '16px', padding: '2rem' }}>
+        <div style={{ background: '#212b38', border: '1px solid #344153', borderRadius: '16px', padding: '2rem' }}>
           <h2 style={{ fontSize: '1.5rem', fontWeight: 700, margin: '0 0 0.5rem 0' }}>Profile Settings</h2>
           <p style={{ color: '#94a3b8', fontSize: '0.875rem', margin: '0 0 1.5rem 0' }}>
             Manage your personal contact details and view account authorization
           </p>
 
           {message && (
-            <div style={{ background: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.4)', color: '#6ee7b7', padding: '0.75rem 1rem', borderRadius: '8px', marginBottom: '1.5rem' }}>
+            <div style={{ background: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.4)', color: '#a7d2c8', padding: '0.75rem 1rem', borderRadius: '8px', marginBottom: '1.5rem' }}>
               {message}
             </div>
           )}
@@ -52,7 +52,7 @@ export const ProfilePage: React.FC = () => {
           )}
 
           {/* Read-Only Account Details */}
-          <div style={{ background: '#0b1322', borderRadius: '10px', padding: '1rem', border: '1px solid #1e293b', marginBottom: '1.5rem' }}>
+          <div style={{ background: '#151b24', borderRadius: '10px', padding: '1rem', border: '1px solid #344153', marginBottom: '1.5rem' }}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', fontSize: '0.85rem' }}>
               <div>
                 <span style={{ color: '#64748b', display: 'block' }}>Email Address</span>
@@ -60,11 +60,11 @@ export const ProfilePage: React.FC = () => {
               </div>
               <div>
                 <span style={{ color: '#64748b', display: 'block' }}>Account Role</span>
-                <span style={{ fontWeight: 700, color: '#10b981' }}>{user?.role}</span>
+                <span style={{ fontWeight: 700, color: '#79b9ad' }}>{user?.role}</span>
               </div>
               <div>
                 <span style={{ color: '#64748b', display: 'block' }}>Status</span>
-                <span style={{ fontWeight: 600, color: user?.is_active ? '#34d399' : '#f87171' }}>
+                <span style={{ fontWeight: 600, color: user?.is_active ? '#92c7bb' : '#f87171' }}>
                   {user?.is_active ? 'Active' : 'Deactivated'}
                 </span>
               </div>
@@ -87,7 +87,7 @@ export const ProfilePage: React.FC = () => {
                 required
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                style={{ width: '100%', padding: '0.75rem 1rem', borderRadius: '8px', background: '#0b1322', border: '1px solid #1e293b', color: '#f8fafc', fontSize: '0.95rem', boxSizing: 'border-box' }}
+                style={{ width: '100%', padding: '0.75rem 1rem', borderRadius: '8px', background: '#151b24', border: '1px solid #344153', color: '#f8fafc', fontSize: '0.95rem', boxSizing: 'border-box' }}
               />
             </div>
 
@@ -100,7 +100,7 @@ export const ProfilePage: React.FC = () => {
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="e.g. +91 9876543210"
-                style={{ width: '100%', padding: '0.75rem 1rem', borderRadius: '8px', background: '#0b1322', border: '1px solid #1e293b', color: '#f8fafc', fontSize: '0.95rem', boxSizing: 'border-box' }}
+                style={{ width: '100%', padding: '0.75rem 1rem', borderRadius: '8px', background: '#151b24', border: '1px solid #344153', color: '#f8fafc', fontSize: '0.95rem', boxSizing: 'border-box' }}
               />
             </div>
 
@@ -108,7 +108,7 @@ export const ProfilePage: React.FC = () => {
               type="submit"
               disabled={isSaving}
               style={{
-                background: '#10b981',
+                background: '#79b9ad',
                 color: '#022c22',
                 border: 'none',
                 padding: '0.75rem 1.5rem',

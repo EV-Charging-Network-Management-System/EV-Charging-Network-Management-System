@@ -44,7 +44,7 @@ export const AdminDashboard: React.FC = () => {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0b1322', color: '#f8fafc', fontFamily: 'system-ui, sans-serif' }}>
+    <div style={{ minHeight: '100vh', background: '#151b24', color: '#f8fafc', fontFamily: 'system-ui, sans-serif' }}>
       <Navbar />
       <div style={{ maxWidth: '1200px', margin: '2rem auto', padding: '0 1rem' }}>
         <div style={{
@@ -69,13 +69,13 @@ export const AdminDashboard: React.FC = () => {
         )}
 
         {actionSuccess && (
-          <div style={{ background: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.4)', color: '#6ee7b7', padding: '0.75rem 1rem', borderRadius: '8px', marginBottom: '1rem' }}>
+          <div style={{ background: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.4)', color: '#a7d2c8', padding: '0.75rem 1rem', borderRadius: '8px', marginBottom: '1rem' }}>
             {actionSuccess}
           </div>
         )}
 
         {/* User Management Section */}
-        <div style={{ background: '#131e32', border: '1px solid #1e293b', borderRadius: '12px', padding: '1.5rem' }}>
+        <div style={{ background: '#212b38', border: '1px solid #344153', borderRadius: '12px', padding: '1.5rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
             <div>
               <h2 style={{ fontSize: '1.3rem', margin: 0, fontWeight: 700 }}>Network User Accounts</h2>
@@ -89,7 +89,7 @@ export const AdminDashboard: React.FC = () => {
               <select
                 value={roleFilter}
                 onChange={(e) => setRoleFilter(e.target.value)}
-                style={{ background: '#0b1322', border: '1px solid #334155', color: '#f8fafc', padding: '0.5rem 0.75rem', borderRadius: '6px', fontSize: '0.85rem' }}
+                style={{ background: '#151b24', border: '1px solid #334155', color: '#f8fafc', padding: '0.5rem 0.75rem', borderRadius: '6px', fontSize: '0.85rem' }}
               >
                 <option value="">All Roles</option>
                 <option value="CUSTOMER">Customer</option>
@@ -98,7 +98,7 @@ export const AdminDashboard: React.FC = () => {
               </select>
               <button
                 onClick={fetchUsers}
-                style={{ background: '#1e293b', border: '1px solid #334155', color: '#f8fafc', padding: '0.5rem 0.75rem', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem' }}
+                style={{ background: '#344153', border: '1px solid #334155', color: '#f8fafc', padding: '0.5rem 0.75rem', borderRadius: '6px', cursor: 'pointer', fontSize: '0.85rem' }}
               >
                 🔄 Refresh
               </button>
@@ -113,7 +113,7 @@ export const AdminDashboard: React.FC = () => {
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.9rem' }}>
                 <thead>
-                  <tr style={{ borderBottom: '1px solid #1e293b', color: '#94a3b8' }}>
+                  <tr style={{ borderBottom: '1px solid #344153', color: '#94a3b8' }}>
                     <th style={{ padding: '0.75rem' }}>ID</th>
                     <th style={{ padding: '0.75rem' }}>Full Name</th>
                     <th style={{ padding: '0.75rem' }}>Email Address</th>
@@ -136,8 +136,8 @@ export const AdminDashboard: React.FC = () => {
                           padding: '2px 8px',
                           borderRadius: '999px',
                           background: u.role === 'ADMIN' ? 'rgba(168, 85, 247, 0.2)' : u.role === 'OPERATOR' ? 'rgba(245, 158, 11, 0.2)' : 'rgba(16, 185, 129, 0.2)',
-                          color: u.role === 'ADMIN' ? '#c084fc' : u.role === 'OPERATOR' ? '#fbbf24' : '#34d399',
-                          border: `1px solid ${u.role === 'ADMIN' ? '#a855f7' : u.role === 'OPERATOR' ? '#f59e0b' : '#10b981'}`
+                          color: u.role === 'ADMIN' ? '#c084fc' : u.role === 'OPERATOR' ? '#fbbf24' : '#92c7bb',
+                          border: `1px solid ${u.role === 'ADMIN' ? '#a855f7' : u.role === 'OPERATOR' ? '#f59e0b' : '#79b9ad'}`
                         }}>
                           {u.role}
                         </span>
@@ -146,7 +146,7 @@ export const AdminDashboard: React.FC = () => {
                         <span style={{
                           fontSize: '0.75rem',
                           fontWeight: 700,
-                          color: u.is_active ? '#34d399' : '#f87171'
+                          color: u.is_active ? '#92c7bb' : '#f87171'
                         }}>
                           {u.is_active ? '● Active' : '○ Deactivated'}
                         </span>

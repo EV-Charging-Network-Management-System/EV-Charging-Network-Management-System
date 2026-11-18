@@ -13,8 +13,8 @@ export const ChargerStatusBadge: React.FC<ChargerStatusBadgeProps> = ({ status, 
         return {
           bg: 'rgba(16, 185, 129, 0.15)',
           border: '1px solid rgba(16, 185, 129, 0.3)',
-          color: '#10b981',
-          dot: '#10b981',
+          color: '#79b9ad',
+          dot: '#79b9ad',
           label: 'Online & Available',
         };
       case 'MAINTENANCE':

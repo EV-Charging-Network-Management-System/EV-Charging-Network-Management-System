@@ -57,9 +57,9 @@ export const ChargersPage: React.FC = () => {
               key={st}
               onClick={() => setStatusFilter(st)}
               style={{
-                backgroundColor: statusFilter === st ? '#10b981' : '#131e32',
-                color: statusFilter === st ? '#0b1322' : '#94a3b8',
-                border: '1px solid #1e293b',
+                backgroundColor: statusFilter === st ? '#79b9ad' : '#212b38',
+                color: statusFilter === st ? '#151b24' : '#94a3b8',
+                border: '1px solid #344153',
                 padding: '0.45rem 0.85rem',
                 borderRadius: '6px',
                 cursor: 'pointer',
@@ -95,8 +95,8 @@ export const ChargersPage: React.FC = () => {
       ) : chargers.length === 0 ? (
         <div
           style={{
-            backgroundColor: '#131e32',
-            border: '1px dashed #1e293b',
+            backgroundColor: '#212b38',
+            border: '1px dashed #344153',
             borderRadius: '12px',
             padding: '3rem',
             textAlign: 'center',
@@ -117,8 +117,8 @@ export const ChargersPage: React.FC = () => {
             <div
               key={ch.charger_id}
               style={{
-                backgroundColor: '#131e32',
-                border: '1px solid #1e293b',
+                backgroundColor: '#212b38',
+                border: '1px solid #344153',
                 borderRadius: '10px',
                 padding: '1.25rem',
                 display: 'flex',
@@ -132,7 +132,7 @@ export const ChargersPage: React.FC = () => {
                     style={{
                       fontFamily: 'monospace',
                       fontWeight: 700,
-                      backgroundColor: '#0f172a',
+                      backgroundColor: '#19212c',
                       border: '1px solid #334155',
                       color: '#f8fafc',
                       padding: '0.25rem 0.6rem',
@@ -149,7 +149,7 @@ export const ChargersPage: React.FC = () => {
                   <span style={{ fontSize: '1.05rem', fontWeight: 700, color: '#f8fafc' }}>
                     {ch.connector_type?.type_name || `Connector #${ch.connector_type_id}`}
                   </span>
-                  <span style={{ fontSize: '1.05rem', fontWeight: 800, color: '#10b981' }}>
+                  <span style={{ fontSize: '1.05rem', fontWeight: 800, color: '#79b9ad' }}>
                     {ch.power_kw} kW
                   </span>
                 </div>
@@ -159,13 +159,13 @@ export const ChargersPage: React.FC = () => {
                 </div>
               </div>
 
-              <div style={{ borderTop: '1px solid #1e293b', paddingTop: '0.75rem' }}>
+              <div style={{ borderTop: '1px solid #344153', paddingTop: '0.75rem' }}>
                 <Link
                   to={`/stations/${ch.station_id}`}
                   style={{
                     display: 'block',
                     textAlign: 'center',
-                    backgroundColor: '#1e293b',
+                    backgroundColor: '#344153',
                     color: '#f8fafc',
                     padding: '0.45rem',
                     borderRadius: '6px',
