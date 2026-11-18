@@ -2,12 +2,16 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 
 interface RouterContextType {
   path: string;
+  search: string;
   navigate: (to: string) => void;
+  setSearch: (search: string) => void;
 }
 
 const RouterContext = createContext<RouterContextType>({
   path: window.location.pathname,
+  search: window.location.search,
   navigate: () => { },
+  setSearch: () => { },
 });
 
 export const useRouter = () => useContext(RouterContext);
@@ -29,11 +33,12 @@ export const useParams = <T extends Record<string, string>>(): T => {
 };
 
 export const useSearchParams = (): [URLSearchParams, (params: URLSearchParams) => void] => {
-  const search = window.location.search;
+  const { search, setSearch } = useRouter();
   const params = new URLSearchParams(search);
   const setSearchParams = (newParams: URLSearchParams) => {
     const newUrl = `${window.location.pathname}?${newParams.toString()}`;
     window.history.pushState({}, '', newUrl);
+    setSearch(window.location.search);
   };
   return [params, setSearchParams];
 };
@@ -66,10 +71,12 @@ export const Link: React.FC<LinkProps> = ({ to, children, style, className, onCl
 
 export const BrowserRouter: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [path, setPath] = useState<string>(window.location.pathname);
+  const [search, setSearch] = useState<string>(window.location.search);
 
   useEffect(() => {
     const handlePopState = () => {
       setPath(window.location.pathname);
+      setSearch(window.location.search);
     };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
@@ -77,12 +84,13 @@ export const BrowserRouter: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const navigate = (to: string) => {
     window.history.pushState({}, '', to);
-    setPath(to);
+    setPath(window.location.pathname);
+    setSearch(window.location.search);
     window.scrollTo(0, 0);
   };
 
   return (
-    <RouterContext.Provider value={{ path, navigate }}>
+    <RouterContext.Provider value={{ path, search, navigate, setSearch }}>
       {children}
     </RouterContext.Provider>
   );
