@@ -235,6 +235,16 @@ mh_dbms/
 
 ## 4. Running the Application Locally
 
+Copy `.env.example` to `.env`, configure PostgreSQL and set a unique, random
+`SECRET_KEY`. Install backend dependencies with `python -m pip install -r
+backend/requirements.txt` from the repository root.
+
+The sample seed data contains placeholder passwords. Demo logins are disabled
+by default; to use the login page's demo buttons with a local test database, set
+`ALLOW_DEMO_PASSWORDS=true` in `.env` and restart the backend. Never enable this
+option for a public or production deployment. Real users should use accounts
+with properly hashed passwords.
+
 ### 1. Run the FastAPI Backend Server
 ```powershell
 # From the mh_dbms workspace root:

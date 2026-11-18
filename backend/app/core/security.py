@@ -39,7 +39,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
     # Demo fallback for pre-seeded placeholder records (demo_placeholder_1..5)
     # Allows both exact placeholder string or friendly demo credentials in local environment
-    if hashed_password.startswith("demo_placeholder_"):
+    if settings.ALLOW_DEMO_PASSWORDS and hashed_password.startswith("demo_placeholder_"):
         if plain_password == hashed_password:
             return True
         # Friendly aliases for testing seeded demo accounts

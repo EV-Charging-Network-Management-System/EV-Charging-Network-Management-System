@@ -45,6 +45,7 @@ class Settings(BaseSettings):
     SECRET_KEY: str = "default_dev_secret_key_change_in_production"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440
+    ALLOW_DEMO_PASSWORDS: bool = False
 
     @computed_field  # type: ignore[misc]
     @property
