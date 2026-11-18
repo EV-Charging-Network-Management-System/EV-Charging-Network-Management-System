@@ -1,3 +1,0 @@
-TEST: test_database_verification
-STATUS: PASSED
-DETAILS: 14/14 tables verified, 54/54 dummy rows verified, READ-ONLY enforced.
