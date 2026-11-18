@@ -30,8 +30,8 @@ export const StationFilters: React.FC<StationFiltersProps> = ({
   return (
     <div
       style={{
-        backgroundColor: '#131e32',
-        border: '1px solid #1e293b',
+        backgroundColor: '#212b38',
+        border: '1px solid #344153',
         borderRadius: '12px',
         padding: '1.25rem',
         marginBottom: '1.5rem',
@@ -60,8 +60,8 @@ export const StationFilters: React.FC<StationFiltersProps> = ({
             onChange={(e) => onChange({ city: e.target.value })}
             style={{
               width: '100%',
-              backgroundColor: '#0f172a',
-              border: '1px solid #1e293b',
+              backgroundColor: '#19212c',
+              border: '1px solid #344153',
               color: '#f8fafc',
               padding: '0.6rem 0.8rem',
               borderRadius: '6px',
@@ -82,8 +82,8 @@ export const StationFilters: React.FC<StationFiltersProps> = ({
             }
             style={{
               width: '100%',
-              backgroundColor: '#0f172a',
-              border: '1px solid #1e293b',
+              backgroundColor: '#19212c',
+              border: '1px solid #344153',
               color: '#f8fafc',
               padding: '0.6rem 0.8rem',
               borderRadius: '6px',
@@ -111,8 +111,8 @@ export const StationFilters: React.FC<StationFiltersProps> = ({
             }
             style={{
               width: '100%',
-              backgroundColor: '#0f172a',
-              border: '1px solid #1e293b',
+              backgroundColor: '#19212c',
+              border: '1px solid #344153',
               color: '#f8fafc',
               padding: '0.6rem 0.8rem',
               borderRadius: '6px',
@@ -136,8 +136,8 @@ export const StationFilters: React.FC<StationFiltersProps> = ({
             onChange={(e) => onChange({ status: e.target.value })}
             style={{
               width: '100%',
-              backgroundColor: '#0f172a',
-              border: '1px solid #1e293b',
+              backgroundColor: '#19212c',
+              border: '1px solid #344153',
               color: '#f8fafc',
               padding: '0.6rem 0.8rem',
               borderRadius: '6px',
@@ -159,7 +159,7 @@ export const StationFilters: React.FC<StationFiltersProps> = ({
           alignItems: 'center',
           flexWrap: 'wrap',
           gap: '1rem',
-          borderTop: '1px solid #1e293b',
+          borderTop: '1px solid #344153',
           paddingTop: '0.85rem',
         }}
       >
@@ -170,8 +170,8 @@ export const StationFilters: React.FC<StationFiltersProps> = ({
             disabled={locating}
             style={{
               backgroundColor: filters.userLocation ? 'rgba(16, 185, 129, 0.2)' : 'rgba(6, 182, 212, 0.15)',
-              border: filters.userLocation ? '1px solid #10b981' : '1px solid #06b6d4',
-              color: filters.userLocation ? '#10b981' : '#38bdf8',
+              border: filters.userLocation ? '1px solid #79b9ad' : '1px solid #87a8c4',
+              color: filters.userLocation ? '#79b9ad' : '#a4bed4',
               padding: '0.5rem 1rem',
               borderRadius: '6px',
               fontSize: '0.85rem',
@@ -192,8 +192,8 @@ export const StationFilters: React.FC<StationFiltersProps> = ({
                 value={filters.radiusKm}
                 onChange={(e) => onChange({ radiusKm: parseFloat(e.target.value) })}
                 style={{
-                  backgroundColor: '#0f172a',
-                  border: '1px solid #1e293b',
+                  backgroundColor: '#19212c',
+                  border: '1px solid #344153',
                   color: '#f8fafc',
                   padding: '0.4rem 0.6rem',
                   borderRadius: '6px',

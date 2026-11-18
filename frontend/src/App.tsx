@@ -48,7 +48,7 @@ const AppRoutes: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: '#0b1322', color: '#10b981', fontFamily: 'system-ui, sans-serif' }}>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: '#151b24', color: '#79b9ad', fontFamily: 'system-ui, sans-serif' }}>
         <div style={{ textAlign: 'center' }}>
           <div style={{ fontSize: '3rem', marginBottom: '1rem', animation: 'pulse 1.5s infinite' }}>⚡</div>
           <p style={{ fontWeight: 600 }}>Connecting to EV Charging Network...</p>
@@ -103,7 +103,7 @@ const AppRoutes: React.FC = () => {
   if (path === '/vehicles') {
     return (
       <ProtectedRoute>
-        <div style={{ minHeight: '100vh', background: '#0b1322' }}>
+        <div style={{ minHeight: '100vh', background: '#151b24' }}>
           <Navbar />
           <VehiclesPage />
         </div>
@@ -114,7 +114,7 @@ const AppRoutes: React.FC = () => {
   if (path === '/vehicles/add') {
     return (
       <ProtectedRoute>
-        <div style={{ minHeight: '100vh', background: '#0b1322' }}>
+        <div style={{ minHeight: '100vh', background: '#151b24' }}>
           <Navbar />
           <AddVehiclePage />
         </div>
@@ -125,7 +125,7 @@ const AppRoutes: React.FC = () => {
   if (/^\/vehicles\/\d+\/edit$/.test(path)) {
     return (
       <ProtectedRoute>
-        <div style={{ minHeight: '100vh', background: '#0b1322' }}>
+        <div style={{ minHeight: '100vh', background: '#151b24' }}>
           <Navbar />
           <EditVehiclePage />
         </div>
@@ -136,7 +136,7 @@ const AppRoutes: React.FC = () => {
   if (/^\/vehicles\/\d+$/.test(path)) {
     return (
       <ProtectedRoute>
-        <div style={{ minHeight: '100vh', background: '#0b1322' }}>
+        <div style={{ minHeight: '100vh', background: '#151b24' }}>
           <Navbar />
           <VehicleDetailsPage />
         </div>
@@ -148,7 +148,7 @@ const AppRoutes: React.FC = () => {
   if (path === '/stations') {
     return (
       <ProtectedRoute>
-        <div style={{ minHeight: '100vh', background: '#0b1322' }}>
+        <div style={{ minHeight: '100vh', background: '#151b24' }}>
           <Navbar />
           <StationsPage />
         </div>
@@ -159,7 +159,7 @@ const AppRoutes: React.FC = () => {
   if (path === '/stations/add') {
     return (
       <ProtectedRoute allowedRoles={['OPERATOR', 'ADMIN']}>
-        <div style={{ minHeight: '100vh', background: '#0b1322' }}>
+        <div style={{ minHeight: '100vh', background: '#151b24' }}>
           <Navbar />
           <AddStationPage />
         </div>
@@ -170,7 +170,7 @@ const AppRoutes: React.FC = () => {
   if (/^\/stations\/\d+\/chargers\/add$/.test(path)) {
     return (
       <ProtectedRoute allowedRoles={['OPERATOR', 'ADMIN']}>
-        <div style={{ minHeight: '100vh', background: '#0b1322' }}>
+        <div style={{ minHeight: '100vh', background: '#151b24' }}>
           <Navbar />
           <AddChargerPage />
         </div>
@@ -181,7 +181,7 @@ const AppRoutes: React.FC = () => {
   if (/^\/stations\/\d+\/edit$/.test(path)) {
     return (
       <ProtectedRoute allowedRoles={['OPERATOR', 'ADMIN']}>
-        <div style={{ minHeight: '100vh', background: '#0b1322' }}>
+        <div style={{ minHeight: '100vh', background: '#151b24' }}>
           <Navbar />
           <EditStationPage />
         </div>
@@ -192,7 +192,7 @@ const AppRoutes: React.FC = () => {
   if (/^\/stations\/\d+$/.test(path)) {
     return (
       <ProtectedRoute>
-        <div style={{ minHeight: '100vh', background: '#0b1322' }}>
+        <div style={{ minHeight: '100vh', background: '#151b24' }}>
           <Navbar />
           <StationDetailsPage />
         </div>
@@ -203,7 +203,7 @@ const AppRoutes: React.FC = () => {
   if (path === '/chargers') {
     return (
       <ProtectedRoute>
-        <div style={{ minHeight: '100vh', background: '#0b1322' }}>
+        <div style={{ minHeight: '100vh', background: '#151b24' }}>
           <Navbar />
           <ChargersPage />
         </div>
@@ -215,7 +215,7 @@ const AppRoutes: React.FC = () => {
   if (path === '/pricing/calculator' || path === '/pricing') {
     return (
       <ProtectedRoute>
-        <div style={{ minHeight: '100vh', background: '#0b1322' }}>
+        <div style={{ minHeight: '100vh', background: '#151b24' }}>
           <Navbar />
           <PricingCalculatorPage />
         </div>
@@ -226,7 +226,7 @@ const AppRoutes: React.FC = () => {
   if (path === '/tariffs') {
     return (
       <ProtectedRoute>
-        <div style={{ minHeight: '100vh', background: '#0b1322' }}>
+        <div style={{ minHeight: '100vh', background: '#151b24' }}>
           <Navbar />
           <TariffManagementPage />
         </div>
@@ -237,7 +237,7 @@ const AppRoutes: React.FC = () => {
   if (path === '/tariffs/new') {
     return (
       <ProtectedRoute allowedRoles={['OPERATOR', 'ADMIN']}>
-        <div style={{ minHeight: '100vh', background: '#0b1322' }}>
+        <div style={{ minHeight: '100vh', background: '#151b24' }}>
           <Navbar />
           <AddTariffPage />
         </div>
@@ -248,7 +248,7 @@ const AppRoutes: React.FC = () => {
   if (path === '/pricing-rules') {
     return (
       <ProtectedRoute>
-        <div style={{ minHeight: '100vh', background: '#0b1322' }}>
+        <div style={{ minHeight: '100vh', background: '#151b24' }}>
           <Navbar />
           <PricingRulesPage />
         </div>
@@ -259,7 +259,7 @@ const AppRoutes: React.FC = () => {
   if (path === '/pricing-rules/new') {
     return (
       <ProtectedRoute allowedRoles={['OPERATOR', 'ADMIN']}>
-        <div style={{ minHeight: '100vh', background: '#0b1322' }}>
+        <div style={{ minHeight: '100vh', background: '#151b24' }}>
           <Navbar />
           <AddPricingRulePage />
         </div>
@@ -271,7 +271,7 @@ const AppRoutes: React.FC = () => {
   if (path === '/reservations') {
     return (
       <ProtectedRoute>
-        <div style={{ minHeight: '100vh', background: '#0b1322' }}>
+        <div style={{ minHeight: '100vh', background: '#151b24' }}>
           <Navbar />
           <ReservationHistory />
         </div>
@@ -282,7 +282,7 @@ const AppRoutes: React.FC = () => {
   if (path === '/reservations/new' || path.startsWith('/reservations/new?')) {
     return (
       <ProtectedRoute>
-        <div style={{ minHeight: '100vh', background: '#0b1322' }}>
+        <div style={{ minHeight: '100vh', background: '#151b24' }}>
           <Navbar />
           <ReservationPage />
         </div>
@@ -293,7 +293,7 @@ const AppRoutes: React.FC = () => {
   if (path.startsWith('/reservations/') && path !== '/reservations/new') {
     return (
       <ProtectedRoute>
-        <div style={{ minHeight: '100vh', background: '#0b1322' }}>
+        <div style={{ minHeight: '100vh', background: '#151b24' }}>
           <Navbar />
           <ReservationDetails />
         </div>
@@ -305,7 +305,7 @@ const AppRoutes: React.FC = () => {
   if (path === '/sessions') {
     return (
       <ProtectedRoute>
-        <div style={{ minHeight: '100vh', background: '#0b1322' }}>
+        <div style={{ minHeight: '100vh', background: '#151b24' }}>
           <Navbar />
           <ChargingSessionPage />
         </div>
@@ -316,7 +316,7 @@ const AppRoutes: React.FC = () => {
   if (path === '/sessions/start' || path.startsWith('/sessions/start?')) {
     return (
       <ProtectedRoute>
-        <div style={{ minHeight: '100vh', background: '#0b1322' }}>
+        <div style={{ minHeight: '100vh', background: '#151b24' }}>
           <Navbar />
           <StartSessionPage />
         </div>
@@ -327,7 +327,7 @@ const AppRoutes: React.FC = () => {
   if (path === '/sessions/active') {
     return (
       <ProtectedRoute>
-        <div style={{ minHeight: '100vh', background: '#0b1322' }}>
+        <div style={{ minHeight: '100vh', background: '#151b24' }}>
           <Navbar />
           <ActiveSessionsPage />
         </div>
@@ -338,7 +338,7 @@ const AppRoutes: React.FC = () => {
   if (path === '/sessions/history') {
     return (
       <ProtectedRoute>
-        <div style={{ minHeight: '100vh', background: '#0b1322' }}>
+        <div style={{ minHeight: '100vh', background: '#151b24' }}>
           <Navbar />
           <SessionHistoryPage />
         </div>
@@ -349,7 +349,7 @@ const AppRoutes: React.FC = () => {
   if (path.startsWith('/sessions/') && path !== '/sessions/start' && path !== '/sessions/active' && path !== '/sessions/history') {
     return (
       <ProtectedRoute>
-        <div style={{ minHeight: '100vh', background: '#0b1322' }}>
+        <div style={{ minHeight: '100vh', background: '#151b24' }}>
           <Navbar />
           <SessionDetailsPage />
         </div>
@@ -361,7 +361,7 @@ const AppRoutes: React.FC = () => {
   if (path === '/invoices') {
     return (
       <ProtectedRoute>
-        <div style={{ minHeight: '100vh', background: '#0b1322' }}>
+        <div style={{ minHeight: '100vh', background: '#151b24' }}>
           <Navbar />
           <InvoicesPage />
         </div>
@@ -372,7 +372,7 @@ const AppRoutes: React.FC = () => {
   if (path.startsWith('/invoices/') && path.endsWith('/pay')) {
     return (
       <ProtectedRoute>
-        <div style={{ minHeight: '100vh', background: '#0b1322' }}>
+        <div style={{ minHeight: '100vh', background: '#151b24' }}>
           <Navbar />
           <PaymentPage />
         </div>
@@ -383,7 +383,7 @@ const AppRoutes: React.FC = () => {
   if (path.startsWith('/invoices/') && !path.endsWith('/pay')) {
     return (
       <ProtectedRoute>
-        <div style={{ minHeight: '100vh', background: '#0b1322' }}>
+        <div style={{ minHeight: '100vh', background: '#151b24' }}>
           <Navbar />
           <InvoiceDetailsPage />
         </div>
@@ -394,7 +394,7 @@ const AppRoutes: React.FC = () => {
   if (path === '/admin/revenue') {
     return (
       <ProtectedRoute allowedRoles={['ADMIN', 'OPERATOR']}>
-        <div style={{ minHeight: '100vh', background: '#0b1322' }}>
+        <div style={{ minHeight: '100vh', background: '#151b24' }}>
           <Navbar />
           <RevenueReportsPage />
         </div>
@@ -406,7 +406,7 @@ const AppRoutes: React.FC = () => {
   if (path === '/maintenance') {
     return (
       <ProtectedRoute>
-        <div style={{ minHeight: '100vh', background: '#0b1322' }} className="p-4 sm:p-6 lg:p-8">
+        <div style={{ minHeight: '100vh', background: '#151b24' }} className="p-4 sm:p-6 lg:p-8">
           <Navbar />
           <div className="mx-auto max-w-7xl pt-4">
             <MaintenanceDashboard />
@@ -419,7 +419,7 @@ const AppRoutes: React.FC = () => {
   if (path === '/maintenance/requests') {
     return (
       <ProtectedRoute>
-        <div style={{ minHeight: '100vh', background: '#0b1322' }} className="p-4 sm:p-6 lg:p-8">
+        <div style={{ minHeight: '100vh', background: '#151b24' }} className="p-4 sm:p-6 lg:p-8">
           <Navbar />
           <div className="mx-auto max-w-7xl pt-4">
             <MaintenanceRequestsPage />
@@ -432,7 +432,7 @@ const AppRoutes: React.FC = () => {
   if (path === '/maintenance/new') {
     return (
       <ProtectedRoute>
-        <div style={{ minHeight: '100vh', background: '#0b1322' }} className="p-4 sm:p-6 lg:p-8">
+        <div style={{ minHeight: '100vh', background: '#151b24' }} className="p-4 sm:p-6 lg:p-8">
           <Navbar />
           <div className="mx-auto max-w-7xl pt-4">
             <CreateMaintenancePage />
@@ -445,7 +445,7 @@ const AppRoutes: React.FC = () => {
   if (path === '/maintenance/analytics') {
     return (
       <ProtectedRoute allowedRoles={['ADMIN', 'OPERATOR']}>
-        <div style={{ minHeight: '100vh', background: '#0b1322' }} className="p-4 sm:p-6 lg:p-8">
+        <div style={{ minHeight: '100vh', background: '#151b24' }} className="p-4 sm:p-6 lg:p-8">
           <Navbar />
           <div className="mx-auto max-w-7xl pt-4">
             <MaintenanceAnalytics />
@@ -458,7 +458,7 @@ const AppRoutes: React.FC = () => {
   if (path.startsWith('/maintenance/') && path !== '/maintenance/requests' && path !== '/maintenance/new' && path !== '/maintenance/analytics') {
     return (
       <ProtectedRoute>
-        <div style={{ minHeight: '100vh', background: '#0b1322' }} className="p-4 sm:p-6 lg:p-8">
+        <div style={{ minHeight: '100vh', background: '#151b24' }} className="p-4 sm:p-6 lg:p-8">
           <Navbar />
           <div className="mx-auto max-w-7xl pt-4">
             <MaintenanceDetailsPage />

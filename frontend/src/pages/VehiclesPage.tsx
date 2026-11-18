@@ -64,8 +64,8 @@ export const VehiclesPage: React.FC = () => {
             display: 'inline-flex',
             alignItems: 'center',
             gap: '0.5rem',
-            backgroundColor: '#10b981',
-            color: '#0b1322',
+            backgroundColor: '#79b9ad',
+            color: '#151b24',
             padding: '0.75rem 1.25rem',
             borderRadius: '8px',
             textDecoration: 'none',
@@ -87,8 +87,8 @@ export const VehiclesPage: React.FC = () => {
           onChange={(e) => setSearchQuery(e.target.value)}
           style={{
             flex: 1,
-            backgroundColor: '#131e32',
-            border: '1px solid #1e293b',
+            backgroundColor: '#212b38',
+            border: '1px solid #344153',
             color: '#f8fafc',
             padding: '0.75rem 1rem',
             borderRadius: '8px',
@@ -120,8 +120,8 @@ export const VehiclesPage: React.FC = () => {
             style={{
               width: '40px',
               height: '40px',
-              border: '3px solid #1e293b',
-              borderTopColor: '#10b981',
+              border: '3px solid #344153',
+              borderTopColor: '#79b9ad',
               borderRadius: '50%',
               margin: '0 auto 1rem',
               animation: 'spin 0.8s linear infinite',
@@ -134,8 +134,8 @@ export const VehiclesPage: React.FC = () => {
         /* Empty State */
         <div
           style={{
-            backgroundColor: '#131e32',
-            border: '1px dashed #1e293b',
+            backgroundColor: '#212b38',
+            border: '1px dashed #344153',
             borderRadius: '12px',
             padding: '4rem 2rem',
             textAlign: 'center',
@@ -155,8 +155,8 @@ export const VehiclesPage: React.FC = () => {
               to="/vehicles/add"
               style={{
                 display: 'inline-block',
-                backgroundColor: '#10b981',
-                color: '#0b1322',
+                backgroundColor: '#79b9ad',
+                color: '#151b24',
                 padding: '0.75rem 1.5rem',
                 borderRadius: '8px',
                 textDecoration: 'none',
@@ -181,9 +181,9 @@ export const VehiclesPage: React.FC = () => {
             <div
               key={vehicle.vehicle_id}
               style={{
-                backgroundColor: '#131e32',
+                backgroundColor: '#212b38',
                 borderRadius: '12px',
-                border: '1px solid #1e293b',
+                border: '1px solid #344153',
                 padding: '1.5rem',
                 display: 'flex',
                 flexDirection: 'column',
@@ -198,7 +198,7 @@ export const VehiclesPage: React.FC = () => {
                     style={{
                       fontFamily: 'monospace',
                       fontWeight: 700,
-                      backgroundColor: '#0b1322',
+                      backgroundColor: '#151b24',
                       border: '1px solid #334155',
                       color: '#f8fafc',
                       padding: '0.35rem 0.75rem',
@@ -231,9 +231,9 @@ export const VehiclesPage: React.FC = () => {
                     marginBottom: '1rem',
                   }}
                 >
-                  <span style={{ color: '#10b981', fontSize: '1.1rem' }}>🔋</span>
+                  <span style={{ color: '#79b9ad', fontSize: '1.1rem' }}>🔋</span>
                   <span style={{ fontSize: '0.85rem', color: '#94a3b8' }}>Battery Pack:</span>
-                  <span style={{ fontSize: '0.95rem', fontWeight: 600, color: '#10b981' }}>
+                  <span style={{ fontSize: '0.95rem', fontWeight: 600, color: '#79b9ad' }}>
                     {vehicle.battery_capacity_kwh ? `${vehicle.battery_capacity_kwh} kWh` : 'Standard'}
                   </span>
                 </div>
@@ -253,9 +253,9 @@ export const VehiclesPage: React.FC = () => {
                             fontWeight: 600,
                             padding: '0.25rem 0.6rem',
                             borderRadius: '4px',
-                            backgroundColor: '#0f172a',
-                            border: '1px solid #10b981',
-                            color: '#10b981',
+                            backgroundColor: '#19212c',
+                            border: '1px solid #79b9ad',
+                            color: '#79b9ad',
                           }}
                         >
                           {c.type_name}
@@ -275,7 +275,7 @@ export const VehiclesPage: React.FC = () => {
                 style={{
                   display: 'flex',
                   gap: '0.5rem',
-                  borderTop: '1px solid #1e293b',
+                  borderTop: '1px solid #344153',
                   paddingTop: '1rem',
                   marginTop: '0.5rem',
                 }}
@@ -285,7 +285,7 @@ export const VehiclesPage: React.FC = () => {
                   style={{
                     flex: 1,
                     textAlign: 'center',
-                    backgroundColor: '#1e293b',
+                    backgroundColor: '#344153',
                     color: '#f8fafc',
                     padding: '0.5rem 0.75rem',
                     borderRadius: '6px',
@@ -303,7 +303,7 @@ export const VehiclesPage: React.FC = () => {
                     textAlign: 'center',
                     backgroundColor: 'rgba(6, 182, 212, 0.1)',
                     border: '1px solid rgba(6, 182, 212, 0.3)',
-                    color: '#06b6d4',
+                    color: '#87a8c4',
                     padding: '0.5rem 0.75rem',
                     borderRadius: '6px',
                     textDecoration: 'none',

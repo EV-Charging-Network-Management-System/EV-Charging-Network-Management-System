@@ -82,19 +82,18 @@ export const PricingCalculator: React.FC = () => {
   }, [selectedStationId, selectedConnectorId, energyKwh, startTime]);
 
   return (
-    <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
+    <div className="pricing-layout">
       {/* Controls Form */}
-      <div className="md:col-span-7 bg-white rounded-xl shadow-md p-6 border border-gray-100">
+      <div className="pricing-card">
         <div className="flex items-center gap-2 mb-6">
-          <span className="p-2 bg-emerald-100 text-emerald-800 rounded-lg text-xl">⚡</span>
           <div>
-            <h2 className="text-xl font-bold text-gray-900">Dynamic Pricing Calculator</h2>
-            <p className="text-xs text-gray-500">Estimate charging cost based on energy, real-time demand & tariffs</p>
+            <h2 className="text-xl font-bold text-gray-900">Charging details</h2>
+
           </div>
         </div>
 
         {error && (
-          <div className="mb-5 p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm flex items-center gap-2">
+          <div role="alert" className="mb-5 p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm flex items-center gap-2">
             <span>⚠️</span>
             <span>{error}</span>
           </div>
@@ -103,10 +102,10 @@ export const PricingCalculator: React.FC = () => {
         <form onSubmit={handleCalculate} className="space-y-5">
           {/* Station Selection */}
           <div>
-            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
+            <label htmlFor="quote-station" className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
               Charging Station <span className="text-red-500">*</span>
             </label>
-            <select
+            <select id="quote-station"
               value={selectedStationId}
               onChange={(e) => setSelectedStationId(e.target.value ? Number(e.target.value) : '')}
               className="w-full rounded-lg border border-gray-300 px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
@@ -123,10 +122,10 @@ export const PricingCalculator: React.FC = () => {
 
           {/* Connector Standard Selection */}
           <div>
-            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
+            <label htmlFor="quote-connector" className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
               Connector Standard (Optional)
             </label>
-            <select
+            <select id="quote-connector"
               value={selectedConnectorId}
               onChange={(e) => setSelectedConnectorId(e.target.value ? Number(e.target.value) : '')}
               className="w-full rounded-lg border border-gray-300 px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
@@ -143,12 +142,12 @@ export const PricingCalculator: React.FC = () => {
           {/* Energy Slider & Input */}
           <div>
             <div className="flex justify-between items-center mb-1.5">
-              <label className="text-xs font-semibold text-gray-700 uppercase tracking-wider">
+              <label htmlFor="quote-energy" className="text-xs font-semibold text-gray-700 uppercase tracking-wider">
                 Estimated Energy (kWh)
               </label>
               <span className="text-sm font-bold text-emerald-700">{energyKwh} kWh</span>
             </div>
-            <input
+            <input id="quote-energy"
               type="range"
               min="1"
               max="100"
@@ -185,10 +184,10 @@ export const PricingCalculator: React.FC = () => {
 
           {/* Session Timing */}
           <div>
-            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
+            <label htmlFor="quote-time" className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1.5">
               Planned Charging Time
             </label>
-            <input
+            <input id="quote-time"
               type="datetime-local"
               value={startTime}
               onChange={(e) => setStartTime(e.target.value)}
@@ -204,13 +203,13 @@ export const PricingCalculator: React.FC = () => {
             disabled={loading}
             className="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg shadow transition disabled:opacity-50"
           >
-            {loading ? 'Recalculating...' : 'Refresh Quote Breakdown'}
+            {loading ? 'Recalculating...' : 'Calculate estimate'}
           </button>
         </form>
       </div>
 
       {/* Quote Breakdown Display */}
-      <div className="md:col-span-5">
+      <div className="pricing-result" aria-live="polite">
         <PriceBreakdown quote={quote} loading={loading} />
       </div>
     </div>

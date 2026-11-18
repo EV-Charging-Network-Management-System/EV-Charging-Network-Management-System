@@ -120,7 +120,7 @@ export const AddVehiclePage: React.FC = () => {
           style={{
             backgroundColor: 'rgba(16, 185, 129, 0.1)',
             border: '1px solid rgba(16, 185, 129, 0.3)',
-            color: '#6ee7b7',
+            color: '#a7d2c8',
             padding: '1rem',
             borderRadius: '8px',
             marginBottom: '1.5rem',
@@ -134,8 +134,8 @@ export const AddVehiclePage: React.FC = () => {
       <form
         onSubmit={handleSubmit}
         style={{
-          backgroundColor: '#131e32',
-          border: '1px solid #1e293b',
+          backgroundColor: '#212b38',
+          border: '1px solid #344153',
           borderRadius: '12px',
           padding: '2rem',
           display: 'flex',
@@ -156,8 +156,8 @@ export const AddVehiclePage: React.FC = () => {
             onChange={(e) => setRegistrationNumber(e.target.value.toUpperCase())}
             style={{
               width: '100%',
-              backgroundColor: '#0f172a',
-              border: '1px solid #1e293b',
+              backgroundColor: '#19212c',
+              border: '1px solid #344153',
               color: '#f8fafc',
               padding: '0.75rem 1rem',
               borderRadius: '8px',
@@ -185,8 +185,8 @@ export const AddVehiclePage: React.FC = () => {
               onChange={(e) => setMake(e.target.value)}
               style={{
                 width: '100%',
-                backgroundColor: '#0f172a',
-                border: '1px solid #1e293b',
+                backgroundColor: '#19212c',
+                border: '1px solid #344153',
                 color: '#f8fafc',
                 padding: '0.75rem 1rem',
                 borderRadius: '8px',
@@ -206,8 +206,8 @@ export const AddVehiclePage: React.FC = () => {
               onChange={(e) => setModel(e.target.value)}
               style={{
                 width: '100%',
-                backgroundColor: '#0f172a',
-                border: '1px solid #1e293b',
+                backgroundColor: '#19212c',
+                border: '1px solid #344153',
                 color: '#f8fafc',
                 padding: '0.75rem 1rem',
                 borderRadius: '8px',
@@ -231,8 +231,8 @@ export const AddVehiclePage: React.FC = () => {
             onChange={(e) => setBatteryCapacity(e.target.value)}
             style={{
               width: '100%',
-              backgroundColor: '#0f172a',
-              border: '1px solid #1e293b',
+              backgroundColor: '#19212c',
+              border: '1px solid #344153',
               color: '#f8fafc',
               padding: '0.75rem 1rem',
               borderRadius: '8px',
@@ -245,7 +245,7 @@ export const AddVehiclePage: React.FC = () => {
         </div>
 
         {/* Connector Compatibility Selector */}
-        <div style={{ borderTop: '1px solid #1e293b', paddingTop: '1.25rem' }}>
+        <div style={{ borderTop: '1px solid #344153', paddingTop: '1.25rem' }}>
           {loadingConnectors ? (
             <div style={{ color: '#94a3b8', fontSize: '0.85rem' }}>Loading connector standards...</div>
           ) : (
@@ -259,7 +259,7 @@ export const AddVehiclePage: React.FC = () => {
         </div>
 
         {/* Submit Actions */}
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', borderTop: '1px solid #1e293b', paddingTop: '1.25rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', borderTop: '1px solid #344153', paddingTop: '1.25rem' }}>
           <button
             type="button"
             onClick={() => navigate('/vehicles')}
@@ -280,9 +280,9 @@ export const AddVehiclePage: React.FC = () => {
             type="submit"
             disabled={submitting}
             style={{
-              backgroundColor: '#10b981',
+              backgroundColor: '#79b9ad',
               border: 'none',
-              color: '#0b1322',
+              color: '#151b24',
               padding: '0.75rem 1.75rem',
               borderRadius: '8px',
               cursor: submitting ? 'not-allowed' : 'pointer',

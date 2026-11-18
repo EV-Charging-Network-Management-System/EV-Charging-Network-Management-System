@@ -62,7 +62,7 @@ export const LoginPage: React.FC = () => {
             width: '56px',
             height: '56px',
             borderRadius: '14px',
-            background: 'linear-gradient(135deg, #10b981, #06b6d4)',
+            background: 'linear-gradient(135deg, #79b9ad, #87a8c4)',
             display: 'inline-flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -107,8 +107,8 @@ export const LoginPage: React.FC = () => {
                 width: '100%',
                 padding: '0.75rem 1rem',
                 borderRadius: '8px',
-                background: '#0b1322',
-                border: '1px solid #1e293b',
+                background: '#151b24',
+                border: '1px solid #344153',
                 color: '#f8fafc',
                 fontSize: '0.95rem',
                 boxSizing: 'border-box'
@@ -130,8 +130,8 @@ export const LoginPage: React.FC = () => {
                 width: '100%',
                 padding: '0.75rem 1rem',
                 borderRadius: '8px',
-                background: '#0b1322',
-                border: '1px solid #1e293b',
+                background: '#151b24',
+                border: '1px solid #344153',
                 color: '#f8fafc',
                 fontSize: '0.95rem',
                 boxSizing: 'border-box'
@@ -146,7 +146,7 @@ export const LoginPage: React.FC = () => {
               width: '100%',
               padding: '0.85rem',
               borderRadius: '8px',
-              background: 'linear-gradient(135deg, #10b981, #059669)',
+              background: 'linear-gradient(135deg, #79b9ad, #367468)',
               color: '#022c22',
               fontWeight: 700,
               fontSize: '1rem',
@@ -162,7 +162,7 @@ export const LoginPage: React.FC = () => {
         </form>
 
         {/* Demo Fast-Login Helper */}
-        <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid #1e293b' }}>
+        <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid #344153' }}>
           <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.8rem', textAlign: 'center' }}>
             Instant Demo Account Fill
           </div>
@@ -173,7 +173,7 @@ export const LoginPage: React.FC = () => {
               style={{
                 background: 'rgba(16, 185, 129, 0.1)',
                 border: '1px solid rgba(16, 185, 129, 0.3)',
-                color: '#34d399',
+                color: '#92c7bb',
                 padding: '0.5rem 0.2rem',
                 borderRadius: '6px',
                 fontSize: '0.75rem',
@@ -220,7 +220,7 @@ export const LoginPage: React.FC = () => {
 
         <div style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.875rem', color: '#94a3b8' }}>
           Don't have an account?{' '}
-          <a href="/register" style={{ color: '#10b981', textDecoration: 'none', fontWeight: 600 }}>
+          <a href="/register" style={{ color: '#79b9ad', textDecoration: 'none', fontWeight: 600 }}>
             Create Customer Account
           </a>
         </div>

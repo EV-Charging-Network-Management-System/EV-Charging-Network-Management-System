@@ -45,8 +45,8 @@ export const ConnectorSelector: React.FC<ConnectorSelectorProps> = ({
                 cursor: disabled ? 'not-allowed' : 'pointer',
                 padding: '0.75rem 1rem',
                 borderRadius: '8px',
-                border: isSelected ? '1px solid #10b981' : '1px solid #1e293b',
-                backgroundColor: isSelected ? 'rgba(16, 185, 129, 0.1)' : '#0f172a',
+                border: isSelected ? '1px solid #79b9ad' : '1px solid #344153',
+                backgroundColor: isSelected ? 'rgba(16, 185, 129, 0.1)' : '#19212c',
                 transition: 'all 0.15s ease',
                 display: 'flex',
                 flexDirection: 'column',
@@ -54,7 +54,7 @@ export const ConnectorSelector: React.FC<ConnectorSelectorProps> = ({
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ fontWeight: 600, color: isSelected ? '#10b981' : '#f8fafc', fontSize: '0.95rem' }}>
+                <span style={{ fontWeight: 600, color: isSelected ? '#79b9ad' : '#f8fafc', fontSize: '0.95rem' }}>
                   {c.type_name}
                 </span>
                 <input
@@ -62,7 +62,7 @@ export const ConnectorSelector: React.FC<ConnectorSelectorProps> = ({
                   checked={isSelected}
                   onChange={() => {}} // handled by parent div onClick
                   disabled={disabled}
-                  style={{ accentColor: '#10b981', cursor: disabled ? 'not-allowed' : 'pointer' }}
+                  style={{ accentColor: '#79b9ad', cursor: disabled ? 'not-allowed' : 'pointer' }}
                 />
               </div>
               {c.description && (

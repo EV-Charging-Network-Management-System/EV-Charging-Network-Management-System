@@ -19,8 +19,7 @@ export const PriceBreakdown: React.FC<PriceBreakdownProps> = ({ quote, loading }
   if (!quote) {
     return (
       <div className="bg-gray-50 rounded-xl p-8 border border-dashed border-gray-300 text-center text-gray-500 flex flex-col items-center justify-center min-h-[300px]">
-        <span className="text-4xl mb-2">⚡</span>
-        <h4 className="font-semibold text-gray-700">No Quote Generated</h4>
+        <h4 className="font-semibold text-gray-700">Your estimate appears here</h4>
         <p className="text-sm text-gray-500 mt-1">Select a station and estimated energy to view instant pricing.</p>
       </div>
     );
@@ -36,7 +35,7 @@ export const PriceBreakdown: React.FC<PriceBreakdownProps> = ({ quote, loading }
   return (
     <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
       {/* Header */}
-      <div className="bg-gradient-to-r from-emerald-600 to-teal-700 p-5 text-white">
+      <div className="quote-header p-5 text-white">
         <div className="flex justify-between items-start">
           <div>
             <span className="text-xs font-semibold tracking-wider uppercase text-emerald-100">Itemized Cost Estimate</span>
@@ -48,7 +47,7 @@ export const PriceBreakdown: React.FC<PriceBreakdownProps> = ({ quote, loading }
             )}
           </div>
           <div className="text-right">
-            <span className="text-xs text-emerald-100 block">Total Payable</span>
+            <span className="text-xs text-emerald-100 block">Estimated total</span>
             <span className="text-3xl font-extrabold tracking-tight">₹{Number(quote.total_amount).toFixed(2)}</span>
           </div>
         </div>
@@ -58,7 +57,6 @@ export const PriceBreakdown: React.FC<PriceBreakdownProps> = ({ quote, loading }
         {/* Dynamic Multiplier Alert if rule applied */}
         {quote.applied_rule ? (
           <div className="p-3.5 rounded-lg bg-amber-50 border border-amber-200 flex items-start gap-3">
-            <span className="text-xl">🔥</span>
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-semibold text-amber-900 text-sm">{quote.applied_rule.rule_type.replace('_', ' ')} Applied</span>

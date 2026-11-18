@@ -68,7 +68,7 @@ export const RegisterPage: React.FC = () => {
             width: '56px',
             height: '56px',
             borderRadius: '14px',
-            background: 'linear-gradient(135deg, #10b981, #06b6d4)',
+            background: 'linear-gradient(135deg, #79b9ad, #87a8c4)',
             display: 'inline-flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -102,7 +102,7 @@ export const RegisterPage: React.FC = () => {
           <div style={{
             background: 'rgba(16, 185, 129, 0.15)',
             border: '1px solid rgba(16, 185, 129, 0.4)',
-            color: '#6ee7b7',
+            color: '#a7d2c8',
             padding: '0.75rem 1rem',
             borderRadius: '8px',
             fontSize: '0.875rem',
@@ -127,8 +127,8 @@ export const RegisterPage: React.FC = () => {
                 width: '100%',
                 padding: '0.75rem 1rem',
                 borderRadius: '8px',
-                background: '#0b1322',
-                border: '1px solid #1e293b',
+                background: '#151b24',
+                border: '1px solid #344153',
                 color: '#f8fafc',
                 fontSize: '0.95rem',
                 boxSizing: 'border-box'
@@ -150,8 +150,8 @@ export const RegisterPage: React.FC = () => {
                 width: '100%',
                 padding: '0.75rem 1rem',
                 borderRadius: '8px',
-                background: '#0b1322',
-                border: '1px solid #1e293b',
+                background: '#151b24',
+                border: '1px solid #344153',
                 color: '#f8fafc',
                 fontSize: '0.95rem',
                 boxSizing: 'border-box'
@@ -172,8 +172,8 @@ export const RegisterPage: React.FC = () => {
                 width: '100%',
                 padding: '0.75rem 1rem',
                 borderRadius: '8px',
-                background: '#0b1322',
-                border: '1px solid #1e293b',
+                background: '#151b24',
+                border: '1px solid #344153',
                 color: '#f8fafc',
                 fontSize: '0.95rem',
                 boxSizing: 'border-box'
@@ -195,8 +195,8 @@ export const RegisterPage: React.FC = () => {
                 width: '100%',
                 padding: '0.75rem 1rem',
                 borderRadius: '8px',
-                background: '#0b1322',
-                border: '1px solid #1e293b',
+                background: '#151b24',
+                border: '1px solid #344153',
                 color: '#f8fafc',
                 fontSize: '0.95rem',
                 boxSizing: 'border-box'
@@ -224,7 +224,7 @@ export const RegisterPage: React.FC = () => {
               width: '100%',
               padding: '0.85rem',
               borderRadius: '8px',
-              background: 'linear-gradient(135deg, #10b981, #059669)',
+              background: 'linear-gradient(135deg, #79b9ad, #367468)',
               color: '#022c22',
               fontWeight: 700,
               fontSize: '1rem',
@@ -241,7 +241,7 @@ export const RegisterPage: React.FC = () => {
 
         <div style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.875rem', color: '#94a3b8' }}>
           Already have an account?{' '}
-          <a href="/login" style={{ color: '#10b981', textDecoration: 'none', fontWeight: 600 }}>
+          <a href="/login" style={{ color: '#79b9ad', textDecoration: 'none', fontWeight: 600 }}>
             Sign in here
           </a>
         </div>
