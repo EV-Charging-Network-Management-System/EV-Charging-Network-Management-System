@@ -1,0 +1,56 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ev-charging-backend"
+version = "0.1.0"
+description = "FastAPI backend for EV Charging Network Management System"
+authors = [{ name = "Development Team" }]
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0",
+    "pydantic>=2.9.2",
+    "pydantic-settings>=2.6.0",
+    "psycopg[binary]>=3.2.0",
+    "sqlalchemy>=2.0.36",
+    "python-dotenv>=1.0.1",
+    "email-validator>=2.0.0",
+    "pwdlib[argon2]>=0.2.0",
+    "pyjwt>=2.8.0",
+    "alembic>=1.14",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3.3",
+    "httpx>=0.27.2",
+    "ruff>=0.11",
+    "mypy>=1.15",
+    "pytest-cov>=6",
+    "hypothesis>=6",
+    "pre-commit>=4",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["backend/tests"]
+python_files = ["test_*.py"]
+
+
+[tool.setuptools.packages.find]
+include = ["backend", "backend.app*"]
+
+[tool.ruff]
+target-version = "py311"
+extend-exclude = ["tests", "database/inspector"]
+
+[tool.ruff.lint]
+select = ["E9", "F63", "F7", "F82"]
+
+[tool.mypy]
+plugins = ["pydantic.mypy"]
+files = ["backend/app/core/config.py", "backend/app/core/security.py", "backend/app/models/revoked_token.py"]
+follow_imports = "silent"
+ignore_missing_imports = true
+check_untyped_defs = true

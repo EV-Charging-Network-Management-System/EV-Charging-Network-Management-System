@@ -4,7 +4,7 @@ Maps to tables: 'connector_types', 'vehicles', and 'vehicle_connector_types'.
 """
 
 from datetime import datetime
-from typing import List, Optional
+from typing import TYPE_CHECKING, List, Optional
 from decimal import Decimal
 from sqlalchemy import (
     BigInteger, Integer, String, Numeric, DateTime,
@@ -13,6 +13,14 @@ from sqlalchemy import (
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.app.core.database import Base
+
+
+if TYPE_CHECKING:
+    from backend.app.models.station import Charger
+    from backend.app.models.session import ChargingSession
+    from backend.app.models.reservation import Reservation
+    from backend.app.models.tariff import Tariff
+    from backend.app.models.user import User
 
 
 class ConnectorType(Base):

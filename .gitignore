@@ -55,3 +55,11 @@ Thumbs.db
 .coverage
 coverage/
 htmlcov/
+
+# Generated test output
+*.log
+coverage.xml
+
+.hypothesis/
+frontend/test-results/
+frontend/playwright-report/

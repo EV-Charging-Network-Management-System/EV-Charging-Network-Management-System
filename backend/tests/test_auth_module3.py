@@ -311,3 +311,21 @@ def test_admin_cannot_deactivate_self(client: TestClient, test_admin: User):
     assert response.status_code == 400
     assert "cannot deactivate their own" in response.json()["detail"]
 
+
+
+def test_browser_cookie_logout_revokes_the_same_bearer_token(client, test_customer):
+    response = client.post(
+        "/api/v1/auth/login",
+        headers={"X-EV-Browser": "1"},
+        json={"email": test_customer.email, "password": "ValidCustomer123!"},
+    )
+    assert response.status_code == 200
+    assert response.json()["expires_in"] == 900
+    assert "HttpOnly" in response.headers["set-cookie"]
+    assert "Secure" in response.headers["set-cookie"]
+    bearer = {"Authorization": "Bearer " + response.json()["access_token"]}
+    client.cookies.set("ev_access", response.json()["access_token"], path="/api/v1")
+    assert client.get("/api/v1/auth/me").status_code == 200
+    assert client.post("/api/v1/auth/logout").status_code == 403
+    assert client.post("/api/v1/auth/logout", headers={"X-EV-Browser": "1"}).status_code == 200
+    assert client.get("/api/v1/auth/me", headers=bearer).status_code == 401

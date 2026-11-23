@@ -4,7 +4,7 @@ Maps to tables: 'maintenance_records' and 'charger_status_history'.
 """
 
 from datetime import datetime
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 from decimal import Decimal
 from sqlalchemy import (
     BigInteger, Integer, String, Text, Numeric, DateTime,
@@ -13,6 +13,11 @@ from sqlalchemy import (
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.app.core.database import Base
+
+
+if TYPE_CHECKING:
+    from backend.app.models.station import Charger
+    from backend.app.models.user import User
 
 
 class MaintenanceRecord(Base):

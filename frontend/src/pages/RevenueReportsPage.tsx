@@ -1,32 +1,44 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { useAuth } from '../context/AuthContext';
 import { billingService } from '../services/billing';
 import { RevenueReport } from '../types/billing';
 import { useNavigate } from '../router';
 
+function csvCell(value: string | number): string {
+  const cell = String(value);
+  // Treat spreadsheet formula prefixes as literal text in exported labels.
+  const safe = typeof value === 'string' && /^[\s]*[=+@-]/.test(cell) && !/^-?\d+(\.\d+)?$/.test(cell)
+    ? "'" + cell
+    : cell;
+  return '"' + safe.replace(/"/g, '""') + '"';
+}
+
+function downloadRevenueCsv(report: RevenueReport) {
+  const rows = [
+    ['Station ID', 'Station', 'City', 'Billed (INR)', 'Collected (INR)', 'Sessions'],
+    ...report.station_wise_revenue.map(row => [
+      row.station_id, row.station_name, row.city, row.total_billed, row.total_collected, row.session_count,
+    ]),
+  ];
+  const content = rows.map(row => row.map(csvCell).join(',')).join('\r\n');
+  const url = URL.createObjectURL(new Blob([content], { type: 'text/csv;charset=utf-8' }));
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'station-revenue.csv';
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
 export const RevenueReportsPage: React.FC = () => {
   const navigate = useNavigate();
-  const [report, setReport] = useState<RevenueReport | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const { user } = useAuth();
+  const { data: report, error, isPending, isFetching, refetch } = useQuery({
+    queryKey: ['revenue-report', user?.user_id],
+    queryFn: billingService.getRevenueReport,
+  });
 
-  const fetchReport = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await billingService.getRevenueReport();
-      setReport(data);
-    } catch (err: any) {
-      setError(err?.message || 'Failed to generate revenue report');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchReport();
-  }, []);
-
-  if (loading) {
+  if (isPending) {
     return (
       <div className="max-w-6xl mx-auto px-4 py-16 text-center text-slate-400">
         Generating financial reconciliation & revenue analytics...
@@ -39,7 +51,7 @@ export const RevenueReportsPage: React.FC = () => {
       <div className="max-w-6xl mx-auto px-4 py-16 text-center space-y-4">
         <div className="text-4xl">⚠️</div>
         <h2 className="text-xl font-bold text-white">Revenue Report Unavailable</h2>
-        <p className="text-xs text-slate-400">{error || 'Access restricted to Operators and Administrators.'}</p>
+        <p className="text-xs text-slate-400">{error?.message || 'Revenue data is unavailable.'}</p>
         <button
           type="button"
           onClick={() => navigate('/invoices')}
@@ -57,7 +69,7 @@ export const RevenueReportsPage: React.FC = () => {
   const collectionRate = billed > 0 ? ((collected / billed) * 100).toFixed(1) : '100.0';
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8 space-y-8">
+    <div className="revenue-report max-w-6xl mx-auto px-4 py-8 space-y-8">
       {/* Page Title */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-5">
         <div>
@@ -77,14 +89,13 @@ export const RevenueReportsPage: React.FC = () => {
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={fetchReport}
-          className="bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all self-start sm:self-center"
-        >
-          <span>🔄</span>
-          <span>Refresh Analytics</span>
-        </button>
+        <div className="revenue-actions flex flex-wrap gap-2">
+          <button type="button" onClick={() => void refetch()} disabled={isFetching}>
+            {isFetching ? 'Refreshing…' : 'Refresh'}
+          </button>
+          <button type="button" onClick={() => downloadRevenueCsv(report)}>Export CSV</button>
+          <button type="button" onClick={() => window.print()}>Print / Save PDF</button>
+        </div>
       </div>
 
       {/* Accounting Notice Banner */}
@@ -245,4 +256,3 @@ export const RevenueReportsPage: React.FC = () => {
     </div>
   );
 };
-

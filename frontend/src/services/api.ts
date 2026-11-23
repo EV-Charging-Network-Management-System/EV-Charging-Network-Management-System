@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1';
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1';
 
 export class ApiError extends Error {
   status: number;
@@ -16,27 +16,21 @@ export async function apiRequest<T>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> {
-  const token = localStorage.getItem('ev_token');
-
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
+    'X-EV-Browser': '1',
     ...(options.headers as Record<string, string> || {}),
   };
-
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
-  }
 
   const url = endpoint.startsWith('http') ? endpoint : `${API_BASE_URL}${endpoint}`;
 
   const response = await fetch(url, {
     ...options,
+    credentials: 'include',
     headers,
   });
 
-  if (response.status === 401) {
-    localStorage.removeItem('ev_token');
-    localStorage.removeItem('ev_user');
+  if (response.status === 401 && endpoint !== '/auth/me') {
     if (!window.location.pathname.includes('/login') && !window.location.pathname.includes('/register')) {
       window.location.href = '/login';
     }
@@ -57,4 +51,3 @@ export async function apiRequest<T>(
 
   return data as T;
 }
-

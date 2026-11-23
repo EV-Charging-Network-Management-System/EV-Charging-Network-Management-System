@@ -1,6 +1,7 @@
 import { Zap } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { Link, useNavigate, useRouter } from '../router';
+import { useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 const links = [
   ['/stations', 'Stations'], ['/chargers', 'Chargers'],
@@ -12,7 +13,8 @@ const links = [
 
 export function Navbar() {
   const { user, logout } = useAuth();
-  const { path } = useRouter();
+  const { pathname: path } = useLocation();
+  const [signOutError, setSignOutError] = useState(false);
   const navigate = useNavigate();
   if (!user) return null;
 
@@ -27,9 +29,15 @@ export function Navbar() {
         <div className="app-account">
           <Link to="/profile">{user.full_name}</Link>
           <button type="button" onClick={async () => {
-            await logout();
-            navigate('/login');
+            setSignOutError(false);
+            try {
+              await logout();
+              navigate('/login', { replace: true });
+            } catch {
+              setSignOutError(true);
+            }
           }}>Sign out</button>
+          {signOutError && <span role="alert">Sign-out failed. Try again.</span>}
         </div>
       </div>
       <nav className="app-nav" aria-label="Main navigation">

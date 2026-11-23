@@ -32,6 +32,7 @@ from backend.app.schemas.session import (
     SessionChargerInfo,
     SessionTariffInfo
 )
+from backend.app.services.session_events import notify_session
 from backend.app.services.pricing_service import (
     select_applicable_tariff,
     evaluate_pricing_rules,
@@ -208,7 +209,7 @@ def start_charging_session(
             ChargingSession.charger_id == payload.charger_id,
             ChargingSession.status == "ACTIVE"
         )
-        .with_for_update()
+        .with_for_update(of=ChargingSession)
     ).scalars().first()
 
     if active_session:
@@ -364,7 +365,7 @@ def complete_charging_session(
     session = db.execute(
         select(ChargingSession)
         .where(ChargingSession.session_id == session_id)
-        .with_for_update()
+        .with_for_update(of=ChargingSession)
     ).scalars().first()
 
     if not session:
@@ -414,6 +415,7 @@ def complete_charging_session(
         if reservation and reservation.status in ("CONFIRMED", "PENDING"):
             reservation.status = "COMPLETED"
 
+    notify_session(db, session.session_id)
     db.commit()
     db.refresh(session)
 
@@ -432,7 +434,7 @@ def interrupt_charging_session(
     session = db.execute(
         select(ChargingSession)
         .where(ChargingSession.session_id == session_id)
-        .with_for_update()
+        .with_for_update(of=ChargingSession)
     ).scalars().first()
 
     if not session:
@@ -483,6 +485,7 @@ def interrupt_charging_session(
         if reservation and reservation.status in ("CONFIRMED", "PENDING"):
             reservation.status = "COMPLETED"
 
+    notify_session(db, session.session_id)
     db.commit()
     db.refresh(session)
 

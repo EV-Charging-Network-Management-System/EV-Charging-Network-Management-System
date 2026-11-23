@@ -5,8 +5,12 @@ Implements Argon2 password hashing via pwdlib and secure JWT access tokens.
 
 from datetime import datetime, timedelta, timezone
 from typing import Optional, Dict, Any
+from uuid import uuid4
+
 import jwt
+from argon2.exceptions import VerificationError
 from pwdlib import PasswordHash
+from pwdlib.exceptions import UnknownHashError
 from pwdlib.hashers.argon2 import Argon2Hasher
 
 from backend.app.core.config import settings
@@ -23,34 +27,13 @@ def get_password_hash(password: str) -> str:
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """
-    Verify plaintext password against stored hash.
-    Supports Argon2 hash verification and demo-fallback for pre-existing seed placeholders.
-    """
-    if not plain_password or not hashed_password:
+    """Verify an Argon2 password hash."""
+    if not plain_password or not hashed_password.startswith("$argon2"):
         return False
-
-    # Argon2 hash verification
-    if hashed_password.startswith("$argon2"):
-        try:
-            return _hasher.verify(plain_password, hashed_password)
-        except Exception:
-            return False
-
-    # Demo fallback for pre-seeded placeholder records (demo_placeholder_1..5)
-    # Allows both exact placeholder string or friendly demo credentials in local environment
-    if settings.ALLOW_DEMO_PASSWORDS and hashed_password.startswith("demo_placeholder_"):
-        if plain_password == hashed_password:
-            return True
-        # Friendly aliases for testing seeded demo accounts
-        if hashed_password == "demo_placeholder_4" and plain_password in ("admin123", "Admin@123", "demo_placeholder_4"):
-            return True
-        if hashed_password in ("demo_placeholder_1", "demo_placeholder_2", "demo_placeholder_5") and plain_password in ("demo123", "Customer@123"):
-            return True
-        if hashed_password == "demo_placeholder_3" and plain_password in ("operator123", "Operator@123"):
-            return True
-
-    return False
+    try:
+        return _hasher.verify(plain_password, hashed_password)
+    except (ValueError, TypeError, VerificationError, UnknownHashError):
+        return False
 
 
 def validate_password_strength(password: str) -> bool:
@@ -86,6 +69,7 @@ def create_access_token(
         "email": email,
         "role": role,
         "type": "access",
+        "jti": uuid4().hex,
         "iat": int(now.timestamp()),
         "exp": int(expire.timestamp())
     }
@@ -106,7 +90,10 @@ def decode_access_token(token: str) -> Dict[str, Any]:
     payload = jwt.decode(
         token,
         settings.SECRET_KEY,
-        algorithms=[settings.ALGORITHM]
+        algorithms=[settings.ALGORITHM],
+        options={"require": ["exp", "iat", "sub", "jti", "type"]},
     )
+    if payload["type"] != "access":
+        raise jwt.InvalidTokenError("Expected an access token")
     return payload
 

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { UserRole } from '../types/auth';
 
@@ -22,8 +23,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowe
   }
 
   if (!isAuthenticated || !user) {
-    window.location.href = '/login';
-    return null;
+    return <Navigate replace to='/login' />;
   }
 
   if (allowedRoles && !allowedRoles.includes(user.role)) {
@@ -33,16 +33,12 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowe
         <p style={{ color: '#94a3b8', margin: '1rem 0' }}>
           Your account role is <strong>{user.role}</strong>, but this page requires <strong>{allowedRoles.join(' or ')}</strong> privileges.
         </p>
-        <button
-          onClick={() => {
-            if (user.role === 'ADMIN') window.location.href = '/admin';
-            else if (user.role === 'OPERATOR') window.location.href = '/operator';
-            else window.location.href = '/customer';
-          }}
-          style={{ background: '#79b9ad', color: '#0b1320', border: 'none', padding: '0.6rem 1.2rem', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}
+        <Link
+          to={'/' + user.role.toLowerCase()}
+          style={{ background: '#79b9ad', color: '#0b1320', padding: '0.6rem 1.2rem', borderRadius: 6 }}
         >
           Return to My Dashboard
-        </button>
+        </Link>
       </div>
     );
   }

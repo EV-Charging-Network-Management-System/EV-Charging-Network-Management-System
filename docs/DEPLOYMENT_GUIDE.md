@@ -46,9 +46,9 @@ DB_POOL_RECYCLE=1800
 
 # Security & Cryptography
 # Generate with: openssl rand -hex 32
-SECRET_KEY="0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+SECRET_KEY=<value from secrets.token_urlsafe(48)>
 ALGORITHM="HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES=1440
+ACCESS_TOKEN_EXPIRE_MINUTES=15
 
 # CORS Allowed Origins (Comma-separated)
 ALLOWED_ORIGINS="https://evcharging.company.com,https://admin.evcharging.company.com"
@@ -156,9 +156,9 @@ After=network.target postgresql.service
 Type=notify
 User=www-data
 Group=www-data
-WorkingDirectory=/opt/mh_dbms
-EnvironmentFile=/opt/mh_dbms/.env
-ExecStart=/opt/mh_dbms/venv/bin/gunicorn backend.app.main:app \
+WorkingDirectory=/opt/ev-charging
+EnvironmentFile=/opt/ev-charging/.env
+ExecStart=/opt/ev-charging/venv/bin/gunicorn backend.app.main:app \
   --workers 4 \
   --worker-class uvicorn.workers.UvicornWorker \
   --bind 127.0.0.1:8000
@@ -227,7 +227,7 @@ server {
     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
 
     # Frontend Static Distribution
-    root /opt/mh_dbms/frontend/dist;
+    root /opt/ev-charging/frontend/dist;
     index index.html;
 
     # Immutable Caching for Hashed Bundles
@@ -298,7 +298,7 @@ services:
       - db
     environment:
       - DATABASE_URL=postgresql+psycopg://ev_admin:StrongContainerPassword123!@db:5432/ev_charging_network
-      - SECRET_KEY=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+      - SECRET_KEY=<generated at setup>
     ports:
       - "8000:8000"
 

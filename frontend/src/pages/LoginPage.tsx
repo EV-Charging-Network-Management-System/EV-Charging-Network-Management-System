@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { Link, useNavigate } from 'react-router-dom';
 
 export const LoginPage: React.FC = () => {
   const { login } = useAuth();
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -15,24 +17,12 @@ export const LoginPage: React.FC = () => {
 
     try {
       const user = await login({ email, password });
-      if (user.role === 'ADMIN') {
-        window.location.href = '/admin';
-      } else if (user.role === 'OPERATOR') {
-        window.location.href = '/operator';
-      } else {
-        window.location.href = '/customer';
-      }
+      navigate('/' + user.role.toLowerCase(), { replace: true });
     } catch (err: any) {
       setError(err.message || 'Login failed. Please check your credentials.');
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleQuickFill = (demoEmail: string, demoPass: string) => {
-    setEmail(demoEmail);
-    setPassword(demoPass);
-    setError(null);
   };
 
   return (
@@ -94,11 +84,11 @@ export const LoginPage: React.FC = () => {
 
         <form onSubmit={handleSubmit}>
           <div style={{ marginBottom: '1.2rem' }}>
-            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#cbd5e1', marginBottom: '0.4rem' }}>
+            <label htmlFor="login-email" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#cbd5e1', marginBottom: '0.4rem' }}>
               Email Address
             </label>
             <input
-              type="email"
+              type="email" id="login-email" autoComplete="username"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -117,11 +107,11 @@ export const LoginPage: React.FC = () => {
           </div>
 
           <div style={{ marginBottom: '1.5rem' }}>
-            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#cbd5e1', marginBottom: '0.4rem' }}>
+            <label htmlFor="login-password" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#cbd5e1', marginBottom: '0.4rem' }}>
               Password
             </label>
             <input
-              type="password"
+              type="password" id="login-password" autoComplete="current-password"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -161,71 +151,13 @@ export const LoginPage: React.FC = () => {
           </button>
         </form>
 
-        {/* Demo Fast-Login Helper */}
-        <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid #344153' }}>
-          <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.8rem', textAlign: 'center' }}>
-            Instant Demo Account Fill
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem' }}>
-            <button
-              type="button"
-              onClick={() => handleQuickFill('ananya.demo@example.com', 'demo123')}
-              style={{
-                background: 'rgba(16, 185, 129, 0.1)',
-                border: '1px solid rgba(16, 185, 129, 0.3)',
-                color: '#92c7bb',
-                padding: '0.5rem 0.2rem',
-                borderRadius: '6px',
-                fontSize: '0.75rem',
-                fontWeight: 600,
-                cursor: 'pointer'
-              }}
-            >
-              Customer
-            </button>
-            <button
-              type="button"
-              onClick={() => handleQuickFill('priya.operator@example.com', 'operator123')}
-              style={{
-                background: 'rgba(245, 158, 11, 0.1)',
-                border: '1px solid rgba(245, 158, 11, 0.3)',
-                color: '#fbbf24',
-                padding: '0.5rem 0.2rem',
-                borderRadius: '6px',
-                fontSize: '0.75rem',
-                fontWeight: 600,
-                cursor: 'pointer'
-              }}
-            >
-              Operator
-            </button>
-            <button
-              type="button"
-              onClick={() => handleQuickFill('admin.demo@example.com', 'admin123')}
-              style={{
-                background: 'rgba(168, 85, 247, 0.1)',
-                border: '1px solid rgba(168, 85, 247, 0.3)',
-                color: '#c084fc',
-                padding: '0.5rem 0.2rem',
-                borderRadius: '6px',
-                fontSize: '0.75rem',
-                fontWeight: 600,
-                cursor: 'pointer'
-              }}
-            >
-              Admin
-            </button>
-          </div>
-        </div>
-
         <div style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.875rem', color: '#94a3b8' }}>
           Don't have an account?{' '}
-          <a href="/register" style={{ color: '#79b9ad', textDecoration: 'none', fontWeight: 600 }}>
+          <Link to="/register" style={{ color: '#79b9ad', textDecoration: 'none', fontWeight: 600 }}>
             Create Customer Account
-          </a>
+          </Link>
         </div>
       </div>
     </div>
   );
 };
-

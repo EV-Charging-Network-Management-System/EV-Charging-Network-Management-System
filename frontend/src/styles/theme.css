@@ -118,3 +118,30 @@ input:focus, select:focus, textarea:focus, button:focus {
 @media (min-width: 800px) {
   .pricing-layout { grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); }
 }
+
+.revenue-actions button {
+  border: 1px solid #64748b;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  color: #f1f5f9;
+}
+.revenue-actions button:focus-visible {
+  outline: 2px solid #79b9ad;
+  outline-offset: 2px;
+}
+@media print {
+  .app-header, .revenue-report button {
+    display: none !important;
+  }
+  body:has(.revenue-report), body:has(.revenue-report) #root > div {
+    background: white !important;
+  }
+  .revenue-report, .revenue-report * {
+    color: black !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+  .revenue-report table {
+    break-inside: avoid;
+  }
+}

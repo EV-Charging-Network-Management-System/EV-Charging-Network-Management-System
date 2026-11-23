@@ -4,7 +4,7 @@ Maps to table: 'charging_sessions'.
 """
 
 from datetime import datetime
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 from decimal import Decimal
 from sqlalchemy import (
     BigInteger, Integer, String, Numeric, DateTime,
@@ -13,6 +13,15 @@ from sqlalchemy import (
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.app.core.database import Base
+
+
+if TYPE_CHECKING:
+    from backend.app.models.station import Charger
+    from backend.app.models.billing import Invoice
+    from backend.app.models.reservation import Reservation
+    from backend.app.models.tariff import Tariff
+    from backend.app.models.user import User
+    from backend.app.models.vehicle import Vehicle
 
 
 class ChargingSession(Base):

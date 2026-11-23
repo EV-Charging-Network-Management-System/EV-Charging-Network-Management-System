@@ -270,10 +270,7 @@ def update_maintenance_status(
 
         # Lock charger row
         charger_query = db.query(Charger).filter(Charger.charger_id == record.charger_id)
-        try:
-            charger = charger_query.with_for_update().first()
-        except Exception:
-            charger = charger_query.first()
+        charger = charger_query.with_for_update(of=Charger).first()
 
         if not charger:
             raise HTTPException(

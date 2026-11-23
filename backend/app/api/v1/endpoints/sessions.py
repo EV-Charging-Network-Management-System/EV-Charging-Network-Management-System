@@ -7,15 +7,18 @@ meter-driven session completion, and interruption controls.
 from datetime import datetime
 from typing import List, Optional
 from fastapi import APIRouter, Depends, Query, status
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from backend.app.core.database import get_db
 from backend.app.api.deps import get_current_active_user
 from backend.app.models.user import User
+from backend.app.models.meter_reading import MeterReading
 from backend.app.schemas.session import (
     SessionStartRequest,
     SessionCompleteRequest,
     SessionInterruptRequest,
+    MeterReadingResponse,
     SessionResponse
 )
 from backend.app.services.session_service import (
@@ -156,3 +159,19 @@ def interrupt_session(
         current_user=current_user,
         db=db
     )
+
+
+@router.get("/{session_id}/meter-readings", response_model=list[MeterReadingResponse])
+def get_meter_readings(
+    session_id: int,
+    limit: int = Query(100, ge=1, le=500),
+    before: datetime | None = None,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
+):
+    get_session_by_id(session_id=session_id, current_user=current_user, db=db)
+    query = select(MeterReading).where(MeterReading.session_id == session_id)
+    if before is not None:
+        query = query.where(MeterReading.recorded_at < before)
+    readings = db.scalars(query.order_by(MeterReading.recorded_at.desc()).limit(limit)).all()
+    return [MeterReadingResponse.model_validate(reading) for reading in readings]

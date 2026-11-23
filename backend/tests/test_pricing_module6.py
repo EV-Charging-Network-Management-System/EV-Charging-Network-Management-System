@@ -458,7 +458,7 @@ def test_quote_peak_hour_rule_activation(
     }, headers=get_auth_headers(test_operator))
 
     # Test peak hour: 19:30
-    peak_time = datetime(2026, 11, 16, 19, 30, tzinfo=timezone.utc)
+    peak_time = now.replace(hour=19, minute=30, second=0, microsecond=0)
     res = client.post("/api/v1/pricing/quote", json={
         "station_id": test_station.station_id,
         "estimated_energy_kwh": "10.00",
@@ -498,7 +498,7 @@ def test_quote_off_peak_rule_activation(
     }, headers=get_auth_headers(test_operator))
 
     # Test off-peak hour: 03:00
-    off_peak_time = datetime(2026, 11, 16, 3, 0, tzinfo=timezone.utc)
+    off_peak_time = now.replace(hour=3, minute=0, second=0, microsecond=0)
     res = client.post("/api/v1/pricing/quote", json={
         "station_id": test_station.station_id,
         "estimated_energy_kwh": "10.00",

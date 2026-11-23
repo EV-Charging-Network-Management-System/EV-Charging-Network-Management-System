@@ -71,6 +71,5 @@ def get_database_health(db: Session = Depends(get_db)) -> DatabaseHealthResponse
     except SQLAlchemyError as exc:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail=f"Database connectivity failed: {str(exc)}"
-        )
-
+            detail="Database connectivity failed."
+        ) from exc
