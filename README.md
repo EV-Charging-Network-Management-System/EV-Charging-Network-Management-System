@@ -73,12 +73,13 @@ npm --prefix frontend test
 npm --prefix frontend run build
 ```
 
+Local k6 run on November 24, 2026 against the hosted image and PostgreSQL 18 produced one successful booking and 19 conflicts from 20 concurrent requests for the same slot. No slot was double-booked. The all-request p95 was 1.53 seconds, including setup login. See [benchmark setup](benchmarks/README.md).
+
 Use Conventional Commit subjects for new changes, such as `fix: reject overlapping reservations`.
 
 ## Limitations and roadmap
 
 The manual charging workflow and simulated payments remain available. The [charger simulator](docs/CHARGER_SIMULATOR.md) covers a subset of OCPP 1.6J. Live charger and session views use PostgreSQL notifications, so use a direct PostgreSQL connection.
 
-- Integrate Stripe test mode, add device-enforced site power limits and expand automated ownership checks across all endpoint types.
-- Grow demo history beyond the baseline seed and publish reproducible load-test results.
+- Integrate Stripe test mode, connect the advisory site power allocation to physical charger power limits and expand automated ownership checks across all endpoint types.
 - Broaden the accessibility audit, expand query caching on the remaining screens, and split the remaining large billing workflows.

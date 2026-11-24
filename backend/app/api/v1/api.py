@@ -8,6 +8,7 @@ from backend.app.api.v1.endpoints import (
     auth,
     audit,
     analytics,
+    power,
     users,
     health,
     vehicles,
@@ -74,3 +75,5 @@ api_router.include_router(maintenance.router, prefix="/maintenance", tags=["Main
 api_router.include_router(audit.router, tags=["Audit"])
 
 api_router.include_router(analytics.router, tags=["Analytics"])
+
+api_router.include_router(power.router, tags=["Smart charging"])

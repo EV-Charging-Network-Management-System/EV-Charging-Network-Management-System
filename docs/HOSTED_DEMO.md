@@ -9,3 +9,5 @@ The Render Blueprint runs the React build and the FastAPI API in one free web se
 The web service sleeps when idle. The optional periodic maintenance worker runs under the local Compose `automation` profile. A free hosted web service does not guarantee that jobs run while it sleeps.
 
 [Render Free plan](https://render.com/docs/free) · [Neon Free plan](https://neon.com/blog/neon-free-plan-1-gb-per-project)
+
+The hosted seed adds 360 synthetic completed sessions over the preceding 90 days. For a local seeded demo, run `python -m database.seed.history --confirm-demo-database` to load the same dataset. Rerunning does not duplicate the batch.

@@ -52,6 +52,8 @@ class Station(Base):
     closing_time: Mapped[Optional[time]] = mapped_column(Time, nullable=True)
     status: Mapped[str] = mapped_column(String(20), nullable=False, default="ACTIVE")
 
+    site_power_cap_kw: Mapped[Decimal | None] = mapped_column(Numeric(10, 3))
+
     # Relationships
     operator: Mapped[Optional["User"]] = relationship("User", back_populates="stations_operated")
     chargers: Mapped[List["Charger"]] = relationship("Charger", back_populates="station", cascade="all, delete-orphan", lazy="selectin")

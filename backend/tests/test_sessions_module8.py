@@ -707,3 +707,28 @@ def test_charger_status_updates_trigger_live_notification(db_session, test_setup
         test_setup["chargers"][0].operational_status = "OUT_OF_SERVICE"
         db_session.commit()
         assert next(stream).startswith("event: changed")
+
+def test_site_power_cap_shares_remaining_budget_and_checks_station_owner(
+    client, db_session, test_setup, test_customer, test_operator, other_operator,
+):
+    from backend.app.api.v1.endpoints.power import allocate_watts
+
+    assert allocate_watts({1: 22000, 2: 60000, 3: 90000}, 100000) == {1: 22000, 2: 39000, 3: 39000}
+    assert allocate_watts({1: 30000, 2: 30000}, 10001) == {1: 5001, 2: 5000}
+    headers = get_auth_headers(test_operator)
+    url = "/api/v1/stations/1/power-cap"
+    assert client.put(url, headers=get_auth_headers(other_operator), json={"site_power_cap_kw": "50"}).status_code == 403
+    assert client.put(url, headers=get_auth_headers(test_customer), json={"site_power_cap_kw": "50"}).status_code == 403
+    for charger in (test_setup["chargers"][0], test_setup["chargers"][2]):
+        db_session.add(ChargingSession(
+            user_id=test_customer.user_id, vehicle_id=1, charger_id=charger.charger_id,
+            tariff_id=test_setup["tariff"].tariff_id, meter_start_kwh=Decimal("0"), status="ACTIVE",
+            started_at=datetime.now(timezone.utc),
+        ))
+    db_session.commit()
+
+    response = client.put(url, headers=headers, json={"site_power_cap_kw": "50"})
+    assert response.status_code == 200, response.text
+    data = response.json()
+    assert Decimal(data["total_allocated_kw"]) == Decimal("50")
+    assert [Decimal(row["allocated_kw"]) for row in data["sessions"]] == [Decimal(25), Decimal(25)]
