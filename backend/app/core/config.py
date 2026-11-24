@@ -6,8 +6,9 @@ Reads credentials strictly from .env without exposing secrets.
 from pathlib import Path
 from urllib.parse import quote_plus
 from typing import Optional
-from pydantic import computed_field
+from pydantic import Field, computed_field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from backend.app.core.charger_config import ChargerDevice
 
 # Locate .env from project root
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent.parent
@@ -18,7 +19,9 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=str(ENV_PATH) if ENV_PATH.exists() else ".env",
         env_file_encoding="utf-8",
-        extra="ignore"
+        extra="ignore",
+        hide_input_in_errors=True,
+        env_ignore_empty=True
     )
 
     PROJECT_NAME: str = "EV Charging Network Management System"
@@ -42,10 +45,30 @@ class Settings(BaseSettings):
     DB_POOL_RECYCLE: int = 1800
 
     # Security
-    SECRET_KEY: str = "default_dev_secret_key_change_in_production"
+    SECRET_KEY: str = Field(min_length=32, repr=False)
     ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440
-    ALLOW_DEMO_PASSWORDS: bool = False
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(default=15, ge=1, le=15)
+    SECURE_COOKIES: bool = True
+    CORS_ORIGINS: list[str] = []
+    OCPP_DEVICES: dict[int, ChargerDevice] = Field(default_factory=dict, repr=False)
+
+    @field_validator("SECRET_KEY")
+    @classmethod
+    def validate_secret_key(cls, value: str) -> str:
+        forbidden = {
+            "default_dev_secret_key_change_in_production",
+            "change_this_to_a_secure_random_secret_key_in_production",
+        }
+        if value.strip() in forbidden or len(value.strip()) < 32:
+            raise ValueError("Set SECRET_KEY to a unique random secret of at least 32 characters.")
+        return value
+
+    @field_validator("CORS_ORIGINS")
+    @classmethod
+    def validate_cors_origins(cls, origins: list[str]) -> list[str]:
+        if "*" in origins:
+            raise ValueError("Credentialed CORS requires explicit origins.")
+        return origins
 
     @computed_field  # type: ignore[misc]
     @property
@@ -71,4 +94,3 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
-

@@ -10,41 +10,25 @@ export const authService = {
   },
 
   async login(credentials: LoginCredentials): Promise<TokenResponse> {
-    const res = await apiRequest<TokenResponse>('/auth/login', {
+    return apiRequest<TokenResponse>('/auth/login', {
       method: 'POST',
       body: JSON.stringify(credentials),
     });
-    if (res.access_token) {
-      localStorage.setItem('ev_token', res.access_token);
-      localStorage.setItem('ev_user', JSON.stringify(res.user));
-    }
-    return res;
   },
 
   async getMe(): Promise<User> {
-    const user = await apiRequest<User>('/auth/me');
-    localStorage.setItem('ev_user', JSON.stringify(user));
-    return user;
+    return apiRequest<User>('/auth/me');
   },
 
   async logout(): Promise<void> {
-    try {
-      await apiRequest('/auth/logout', { method: 'POST' });
-    } catch (e) {
-      // Ignore network errors on logout
-    } finally {
-      localStorage.removeItem('ev_token');
-      localStorage.removeItem('ev_user');
-    }
+    await apiRequest('/auth/logout', { method: 'POST' });
   },
 
   async updateProfile(profile: { full_name?: string; phone?: string }): Promise<User> {
-    const user = await apiRequest<User>('/users/me', {
+    return apiRequest<User>('/users/me', {
       method: 'PATCH',
       body: JSON.stringify(profile),
     });
-    localStorage.setItem('ev_user', JSON.stringify(user));
-    return user;
   },
 
   async listUsers(filters: { role?: string; is_active?: boolean } = {}): Promise<User[]> {
@@ -60,24 +44,5 @@ export const authService = {
       method: 'PATCH',
       body: JSON.stringify({ is_active: isActive }),
     });
-  },
-
-  getStoredToken(): string | null {
-    return localStorage.getItem('ev_token');
-  },
-
-  getStoredUser(): User | null {
-    const raw = localStorage.getItem('ev_user');
-    if (!raw) return null;
-    try {
-      return JSON.parse(raw);
-    } catch {
-      return null;
-    }
-  },
-
-  isAuthenticated(): boolean {
-    return !!this.getStoredToken();
   }
 };
-

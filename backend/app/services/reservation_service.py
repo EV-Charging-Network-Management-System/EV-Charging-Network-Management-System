@@ -414,7 +414,7 @@ def create_reservation_transaction(
                 Reservation.start_at < norm_end,
                 Reservation.end_at > norm_start
             )
-            .with_for_update()
+            .with_for_update(of=Reservation)
         ).scalars().all()
 
         if conflicts:
@@ -442,8 +442,7 @@ def create_reservation_transaction(
         raise
     except IntegrityError as exc:
         db.rollback()
-        err_msg = str(exc).lower()
-        if "23p01" in err_msg or "exclude" in err_msg or "overlap" in err_msg or "conflict" in err_msg:
+        if getattr(exc.orig, "sqlstate", None) == "23P01":
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail="This charging slot has already been reserved. Please choose another time."
@@ -456,8 +455,8 @@ def create_reservation_transaction(
         db.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to reserve charging slot: {str(exc)}"
-        )
+            detail="Failed to reserve charging slot."
+        ) from exc
 
 
 def cancel_reservation_transaction(

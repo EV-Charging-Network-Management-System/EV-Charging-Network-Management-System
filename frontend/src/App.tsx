@@ -1,6 +1,7 @@
 import React from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import { BrowserRouter, useRouter } from './router';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { CustomerDashboard } from './pages/CustomerDashboard';
@@ -44,7 +45,6 @@ import { Navbar } from './components/Navbar';
 
 const AppRoutes: React.FC = () => {
   const { user, isAuthenticated, isLoading } = useAuth();
-  const { path } = useRouter();
 
   if (isLoading) {
     return (
@@ -57,449 +57,320 @@ const AppRoutes: React.FC = () => {
     );
   }
 
-  // Public Routes
-  if (path === '/login') {
-    return <LoginPage />;
-  }
-
-  if (path === '/register') {
-    return <RegisterPage />;
-  }
-
-  // Protected Role Routes
-  if (path === '/customer') {
-    return (
-      <ProtectedRoute allowedRoles={['CUSTOMER']}>
-        <CustomerDashboard />
-      </ProtectedRoute>
-    );
-  }
-
-  if (path === '/operator') {
-    return (
-      <ProtectedRoute allowedRoles={['OPERATOR', 'ADMIN']}>
-        <OperatorDashboard />
-      </ProtectedRoute>
-    );
-  }
-
-  if (path === '/admin') {
-    return (
-      <ProtectedRoute allowedRoles={['ADMIN']}>
-        <AdminDashboard />
-      </ProtectedRoute>
-    );
-  }
-
-  if (path === '/profile') {
-    return (
-      <ProtectedRoute>
-        <ProfilePage />
-      </ProtectedRoute>
-    );
-  }
-
-  // Protected Vehicle Routes
-  if (path === '/vehicles') {
-    return (
-      <ProtectedRoute>
-        <div style={{ minHeight: '100vh', background: '#151b24' }}>
-          <Navbar />
-          <VehiclesPage />
-        </div>
-      </ProtectedRoute>
-    );
-  }
-
-  if (path === '/vehicles/add') {
-    return (
-      <ProtectedRoute>
-        <div style={{ minHeight: '100vh', background: '#151b24' }}>
-          <Navbar />
-          <AddVehiclePage />
-        </div>
-      </ProtectedRoute>
-    );
-  }
-
-  if (/^\/vehicles\/\d+\/edit$/.test(path)) {
-    return (
-      <ProtectedRoute>
-        <div style={{ minHeight: '100vh', background: '#151b24' }}>
-          <Navbar />
-          <EditVehiclePage />
-        </div>
-      </ProtectedRoute>
-    );
-  }
-
-  if (/^\/vehicles\/\d+$/.test(path)) {
-    return (
-      <ProtectedRoute>
-        <div style={{ minHeight: '100vh', background: '#151b24' }}>
-          <Navbar />
-          <VehicleDetailsPage />
-        </div>
-      </ProtectedRoute>
-    );
-  }
-
-  // Protected Station & Charger Routes
-  if (path === '/stations') {
-    return (
-      <ProtectedRoute>
-        <div style={{ minHeight: '100vh', background: '#151b24' }}>
-          <Navbar />
-          <StationsPage />
-        </div>
-      </ProtectedRoute>
-    );
-  }
-
-  if (path === '/stations/add') {
-    return (
-      <ProtectedRoute allowedRoles={['OPERATOR', 'ADMIN']}>
-        <div style={{ minHeight: '100vh', background: '#151b24' }}>
-          <Navbar />
-          <AddStationPage />
-        </div>
-      </ProtectedRoute>
-    );
-  }
-
-  if (/^\/stations\/\d+\/chargers\/add$/.test(path)) {
-    return (
-      <ProtectedRoute allowedRoles={['OPERATOR', 'ADMIN']}>
-        <div style={{ minHeight: '100vh', background: '#151b24' }}>
-          <Navbar />
-          <AddChargerPage />
-        </div>
-      </ProtectedRoute>
-    );
-  }
-
-  if (/^\/stations\/\d+\/edit$/.test(path)) {
-    return (
-      <ProtectedRoute allowedRoles={['OPERATOR', 'ADMIN']}>
-        <div style={{ minHeight: '100vh', background: '#151b24' }}>
-          <Navbar />
-          <EditStationPage />
-        </div>
-      </ProtectedRoute>
-    );
-  }
-
-  if (/^\/stations\/\d+$/.test(path)) {
-    return (
-      <ProtectedRoute>
-        <div style={{ minHeight: '100vh', background: '#151b24' }}>
-          <Navbar />
-          <StationDetailsPage />
-        </div>
-      </ProtectedRoute>
-    );
-  }
-
-  if (path === '/chargers') {
-    return (
-      <ProtectedRoute>
-        <div style={{ minHeight: '100vh', background: '#151b24' }}>
-          <Navbar />
-          <ChargersPage />
-        </div>
-      </ProtectedRoute>
-    );
-  }
-
-  // Pricing & Tariff Routes
-  if (path === '/pricing/calculator' || path === '/pricing') {
-    return (
-      <ProtectedRoute>
-        <div style={{ minHeight: '100vh', background: '#151b24' }}>
-          <Navbar />
-          <PricingCalculatorPage />
-        </div>
-      </ProtectedRoute>
-    );
-  }
-
-  if (path === '/tariffs') {
-    return (
-      <ProtectedRoute>
-        <div style={{ minHeight: '100vh', background: '#151b24' }}>
-          <Navbar />
-          <TariffManagementPage />
-        </div>
-      </ProtectedRoute>
-    );
-  }
-
-  if (path === '/tariffs/new') {
-    return (
-      <ProtectedRoute allowedRoles={['OPERATOR', 'ADMIN']}>
-        <div style={{ minHeight: '100vh', background: '#151b24' }}>
-          <Navbar />
-          <AddTariffPage />
-        </div>
-      </ProtectedRoute>
-    );
-  }
-
-  if (path === '/pricing-rules') {
-    return (
-      <ProtectedRoute>
-        <div style={{ minHeight: '100vh', background: '#151b24' }}>
-          <Navbar />
-          <PricingRulesPage />
-        </div>
-      </ProtectedRoute>
-    );
-  }
-
-  if (path === '/pricing-rules/new') {
-    return (
-      <ProtectedRoute allowedRoles={['OPERATOR', 'ADMIN']}>
-        <div style={{ minHeight: '100vh', background: '#151b24' }}>
-          <Navbar />
-          <AddPricingRulePage />
-        </div>
-      </ProtectedRoute>
-    );
-  }
-
-  // Reservation Management Routes (Module 7)
-  if (path === '/reservations') {
-    return (
-      <ProtectedRoute>
-        <div style={{ minHeight: '100vh', background: '#151b24' }}>
-          <Navbar />
-          <ReservationHistory />
-        </div>
-      </ProtectedRoute>
-    );
-  }
-
-  if (path === '/reservations/new' || path.startsWith('/reservations/new?')) {
-    return (
-      <ProtectedRoute>
-        <div style={{ minHeight: '100vh', background: '#151b24' }}>
-          <Navbar />
-          <ReservationPage />
-        </div>
-      </ProtectedRoute>
-    );
-  }
-
-  if (path.startsWith('/reservations/') && path !== '/reservations/new') {
-    return (
-      <ProtectedRoute>
-        <div style={{ minHeight: '100vh', background: '#151b24' }}>
-          <Navbar />
-          <ReservationDetails />
-        </div>
-      </ProtectedRoute>
-    );
-  }
-
-  // Charging Session & Energy Metering Routes (Module 8)
-  if (path === '/sessions') {
-    return (
-      <ProtectedRoute>
-        <div style={{ minHeight: '100vh', background: '#151b24' }}>
-          <Navbar />
-          <ChargingSessionPage />
-        </div>
-      </ProtectedRoute>
-    );
-  }
-
-  if (path === '/sessions/start' || path.startsWith('/sessions/start?')) {
-    return (
-      <ProtectedRoute>
-        <div style={{ minHeight: '100vh', background: '#151b24' }}>
-          <Navbar />
-          <StartSessionPage />
-        </div>
-      </ProtectedRoute>
-    );
-  }
-
-  if (path === '/sessions/active') {
-    return (
-      <ProtectedRoute>
-        <div style={{ minHeight: '100vh', background: '#151b24' }}>
-          <Navbar />
-          <ActiveSessionsPage />
-        </div>
-      </ProtectedRoute>
-    );
-  }
-
-  if (path === '/sessions/history') {
-    return (
-      <ProtectedRoute>
-        <div style={{ minHeight: '100vh', background: '#151b24' }}>
-          <Navbar />
-          <SessionHistoryPage />
-        </div>
-      </ProtectedRoute>
-    );
-  }
-
-  if (path.startsWith('/sessions/') && path !== '/sessions/start' && path !== '/sessions/active' && path !== '/sessions/history') {
-    return (
-      <ProtectedRoute>
-        <div style={{ minHeight: '100vh', background: '#151b24' }}>
-          <Navbar />
-          <SessionDetailsPage />
-        </div>
-      </ProtectedRoute>
-    );
-  }
-
-  // Module 9 Invoicing & Payment Routes
-  if (path === '/invoices') {
-    return (
-      <ProtectedRoute>
-        <div style={{ minHeight: '100vh', background: '#151b24' }}>
-          <Navbar />
-          <InvoicesPage />
-        </div>
-      </ProtectedRoute>
-    );
-  }
-
-  if (path.startsWith('/invoices/') && path.endsWith('/pay')) {
-    return (
-      <ProtectedRoute>
-        <div style={{ minHeight: '100vh', background: '#151b24' }}>
-          <Navbar />
-          <PaymentPage />
-        </div>
-      </ProtectedRoute>
-    );
-  }
-
-  if (path.startsWith('/invoices/') && !path.endsWith('/pay')) {
-    return (
-      <ProtectedRoute>
-        <div style={{ minHeight: '100vh', background: '#151b24' }}>
-          <Navbar />
-          <InvoiceDetailsPage />
-        </div>
-      </ProtectedRoute>
-    );
-  }
-
-  if (path === '/admin/revenue') {
-    return (
-      <ProtectedRoute allowedRoles={['ADMIN', 'OPERATOR']}>
-        <div style={{ minHeight: '100vh', background: '#151b24' }}>
-          <Navbar />
-          <RevenueReportsPage />
-        </div>
-      </ProtectedRoute>
-    );
-  }
-
-  // Module 10 Maintenance & Diagnostics Routes
-  if (path === '/maintenance') {
-    return (
-      <ProtectedRoute>
-        <div style={{ minHeight: '100vh', background: '#151b24' }} className="p-4 sm:p-6 lg:p-8">
-          <Navbar />
-          <div className="mx-auto max-w-7xl pt-4">
-            <MaintenanceDashboard />
-          </div>
-        </div>
-      </ProtectedRoute>
-    );
-  }
-
-  if (path === '/maintenance/requests') {
-    return (
-      <ProtectedRoute>
-        <div style={{ minHeight: '100vh', background: '#151b24' }} className="p-4 sm:p-6 lg:p-8">
-          <Navbar />
-          <div className="mx-auto max-w-7xl pt-4">
-            <MaintenanceRequestsPage />
-          </div>
-        </div>
-      </ProtectedRoute>
-    );
-  }
-
-  if (path === '/maintenance/new') {
-    return (
-      <ProtectedRoute>
-        <div style={{ minHeight: '100vh', background: '#151b24' }} className="p-4 sm:p-6 lg:p-8">
-          <Navbar />
-          <div className="mx-auto max-w-7xl pt-4">
-            <CreateMaintenancePage />
-          </div>
-        </div>
-      </ProtectedRoute>
-    );
-  }
-
-  if (path === '/maintenance/analytics') {
-    return (
-      <ProtectedRoute allowedRoles={['ADMIN', 'OPERATOR']}>
-        <div style={{ minHeight: '100vh', background: '#151b24' }} className="p-4 sm:p-6 lg:p-8">
-          <Navbar />
-          <div className="mx-auto max-w-7xl pt-4">
-            <MaintenanceAnalytics />
-          </div>
-        </div>
-      </ProtectedRoute>
-    );
-  }
-
-  if (path.startsWith('/maintenance/') && path !== '/maintenance/requests' && path !== '/maintenance/new' && path !== '/maintenance/analytics') {
-    return (
-      <ProtectedRoute>
-        <div style={{ minHeight: '100vh', background: '#151b24' }} className="p-4 sm:p-6 lg:p-8">
-          <Navbar />
-          <div className="mx-auto max-w-7xl pt-4">
-            <MaintenanceDetailsPage />
-          </div>
-        </div>
-      </ProtectedRoute>
-    );
-  }
-
-  // Default / Root Route: Route based on authentication & role
-  if (isAuthenticated && user) {
-    if (user.role === 'ADMIN') {
-      return (
-        <ProtectedRoute allowedRoles={['ADMIN']}>
-          <AdminDashboard />
-        </ProtectedRoute>
-      );
-    }
-    if (user.role === 'OPERATOR') {
-      return (
-        <ProtectedRoute allowedRoles={['OPERATOR', 'ADMIN']}>
-          <OperatorDashboard />
-        </ProtectedRoute>
-      );
-    }
-    return (
-      <ProtectedRoute allowedRoles={['CUSTOMER']}>
-        <CustomerDashboard />
-      </ProtectedRoute>
-    );
-  }
-
-  return <LoginPage />;
+  const home = isAuthenticated && user ? '/' + user.role.toLowerCase() : '/login';
+  return (
+    <Routes>
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
+      <Route path="/customer" element={(
+          <ProtectedRoute allowedRoles={['CUSTOMER']}>
+            <CustomerDashboard />
+          </ProtectedRoute>
+      )} />
+      <Route path="/operator" element={(
+          <ProtectedRoute allowedRoles={['OPERATOR', 'ADMIN']}>
+            <OperatorDashboard />
+          </ProtectedRoute>
+      )} />
+      <Route path="/admin" element={(
+          <ProtectedRoute allowedRoles={['ADMIN']}>
+            <AdminDashboard />
+          </ProtectedRoute>
+      )} />
+      <Route path="/profile" element={(
+          <ProtectedRoute>
+            <ProfilePage />
+          </ProtectedRoute>
+      )} />
+      <Route path="/vehicles" element={(
+          <ProtectedRoute>
+            <div style={{ minHeight: '100vh', background: '#151b24' }}>
+              <Navbar />
+              <VehiclesPage />
+            </div>
+          </ProtectedRoute>
+      )} />
+      <Route path="/vehicles/add" element={(
+          <ProtectedRoute>
+            <div style={{ minHeight: '100vh', background: '#151b24' }}>
+              <Navbar />
+              <AddVehiclePage />
+            </div>
+          </ProtectedRoute>
+      )} />
+      <Route path="/vehicles/:id/edit" element={(
+          <ProtectedRoute>
+            <div style={{ minHeight: '100vh', background: '#151b24' }}>
+              <Navbar />
+              <EditVehiclePage />
+            </div>
+          </ProtectedRoute>
+      )} />
+      <Route path="/vehicles/:id" element={(
+          <ProtectedRoute>
+            <div style={{ minHeight: '100vh', background: '#151b24' }}>
+              <Navbar />
+              <VehicleDetailsPage />
+            </div>
+          </ProtectedRoute>
+      )} />
+      <Route path="/stations" element={(
+          <ProtectedRoute>
+            <div style={{ minHeight: '100vh', background: '#151b24' }}>
+              <Navbar />
+              <StationsPage />
+            </div>
+          </ProtectedRoute>
+      )} />
+      <Route path="/stations/add" element={(
+          <ProtectedRoute allowedRoles={['OPERATOR', 'ADMIN']}>
+            <div style={{ minHeight: '100vh', background: '#151b24' }}>
+              <Navbar />
+              <AddStationPage />
+            </div>
+          </ProtectedRoute>
+      )} />
+      <Route path="/stations/:id/chargers/add" element={(
+          <ProtectedRoute allowedRoles={['OPERATOR', 'ADMIN']}>
+            <div style={{ minHeight: '100vh', background: '#151b24' }}>
+              <Navbar />
+              <AddChargerPage />
+            </div>
+          </ProtectedRoute>
+      )} />
+      <Route path="/stations/:id/edit" element={(
+          <ProtectedRoute allowedRoles={['OPERATOR', 'ADMIN']}>
+            <div style={{ minHeight: '100vh', background: '#151b24' }}>
+              <Navbar />
+              <EditStationPage />
+            </div>
+          </ProtectedRoute>
+      )} />
+      <Route path="/stations/:id" element={(
+          <ProtectedRoute>
+            <div style={{ minHeight: '100vh', background: '#151b24' }}>
+              <Navbar />
+              <StationDetailsPage />
+            </div>
+          </ProtectedRoute>
+      )} />
+      <Route path="/chargers" element={(
+          <ProtectedRoute>
+            <div style={{ minHeight: '100vh', background: '#151b24' }}>
+              <Navbar />
+              <ChargersPage />
+            </div>
+          </ProtectedRoute>
+      )} />
+      <Route path="/pricing/calculator" element={(
+          <ProtectedRoute>
+            <div style={{ minHeight: '100vh', background: '#151b24' }}>
+              <Navbar />
+              <PricingCalculatorPage />
+            </div>
+          </ProtectedRoute>
+      )} />
+      <Route path="/pricing" element={(
+          <ProtectedRoute>
+            <div style={{ minHeight: '100vh', background: '#151b24' }}>
+              <Navbar />
+              <PricingCalculatorPage />
+            </div>
+          </ProtectedRoute>
+      )} />
+      <Route path="/tariffs" element={(
+          <ProtectedRoute>
+            <div style={{ minHeight: '100vh', background: '#151b24' }}>
+              <Navbar />
+              <TariffManagementPage />
+            </div>
+          </ProtectedRoute>
+      )} />
+      <Route path="/tariffs/new" element={(
+          <ProtectedRoute allowedRoles={['OPERATOR', 'ADMIN']}>
+            <div style={{ minHeight: '100vh', background: '#151b24' }}>
+              <Navbar />
+              <AddTariffPage />
+            </div>
+          </ProtectedRoute>
+      )} />
+      <Route path="/pricing-rules" element={(
+          <ProtectedRoute>
+            <div style={{ minHeight: '100vh', background: '#151b24' }}>
+              <Navbar />
+              <PricingRulesPage />
+            </div>
+          </ProtectedRoute>
+      )} />
+      <Route path="/pricing-rules/new" element={(
+          <ProtectedRoute allowedRoles={['OPERATOR', 'ADMIN']}>
+            <div style={{ minHeight: '100vh', background: '#151b24' }}>
+              <Navbar />
+              <AddPricingRulePage />
+            </div>
+          </ProtectedRoute>
+      )} />
+      <Route path="/reservations" element={(
+          <ProtectedRoute>
+            <div style={{ minHeight: '100vh', background: '#151b24' }}>
+              <Navbar />
+              <ReservationHistory />
+            </div>
+          </ProtectedRoute>
+      )} />
+      <Route path="/reservations/new" element={(
+          <ProtectedRoute>
+            <div style={{ minHeight: '100vh', background: '#151b24' }}>
+              <Navbar />
+              <ReservationPage />
+            </div>
+          </ProtectedRoute>
+      )} />
+      <Route path="/reservations/:id" element={(
+          <ProtectedRoute>
+            <div style={{ minHeight: '100vh', background: '#151b24' }}>
+              <Navbar />
+              <ReservationDetails />
+            </div>
+          </ProtectedRoute>
+      )} />
+      <Route path="/sessions" element={(
+          <ProtectedRoute>
+            <div style={{ minHeight: '100vh', background: '#151b24' }}>
+              <Navbar />
+              <ChargingSessionPage />
+            </div>
+          </ProtectedRoute>
+      )} />
+      <Route path="/sessions/start" element={(
+          <ProtectedRoute>
+            <div style={{ minHeight: '100vh', background: '#151b24' }}>
+              <Navbar />
+              <StartSessionPage />
+            </div>
+          </ProtectedRoute>
+      )} />
+      <Route path="/sessions/active" element={(
+          <ProtectedRoute>
+            <div style={{ minHeight: '100vh', background: '#151b24' }}>
+              <Navbar />
+              <ActiveSessionsPage />
+            </div>
+          </ProtectedRoute>
+      )} />
+      <Route path="/sessions/history" element={(
+          <ProtectedRoute>
+            <div style={{ minHeight: '100vh', background: '#151b24' }}>
+              <Navbar />
+              <SessionHistoryPage />
+            </div>
+          </ProtectedRoute>
+      )} />
+      <Route path="/sessions/:id" element={(
+          <ProtectedRoute>
+            <div style={{ minHeight: '100vh', background: '#151b24' }}>
+              <Navbar />
+              <SessionDetailsPage />
+            </div>
+          </ProtectedRoute>
+      )} />
+      <Route path="/invoices" element={(
+          <ProtectedRoute>
+            <div style={{ minHeight: '100vh', background: '#151b24' }}>
+              <Navbar />
+              <InvoicesPage />
+            </div>
+          </ProtectedRoute>
+      )} />
+      <Route path="/invoices/:id/pay" element={(
+          <ProtectedRoute>
+            <div style={{ minHeight: '100vh', background: '#151b24' }}>
+              <Navbar />
+              <PaymentPage />
+            </div>
+          </ProtectedRoute>
+      )} />
+      <Route path="/invoices/:id" element={(
+          <ProtectedRoute>
+            <div style={{ minHeight: '100vh', background: '#151b24' }}>
+              <Navbar />
+              <InvoiceDetailsPage />
+            </div>
+          </ProtectedRoute>
+      )} />
+      <Route path="/admin/revenue" element={(
+          <ProtectedRoute allowedRoles={['ADMIN', 'OPERATOR']}>
+            <div style={{ minHeight: '100vh', background: '#151b24' }}>
+              <Navbar />
+              <RevenueReportsPage />
+            </div>
+          </ProtectedRoute>
+      )} />
+      <Route path="/maintenance" element={(
+          <ProtectedRoute>
+            <div style={{ minHeight: '100vh', background: '#151b24' }} className="p-4 sm:p-6 lg:p-8">
+              <Navbar />
+              <div className="mx-auto max-w-7xl pt-4">
+                <MaintenanceDashboard />
+              </div>
+            </div>
+          </ProtectedRoute>
+      )} />
+      <Route path="/maintenance/requests" element={(
+          <ProtectedRoute>
+            <div style={{ minHeight: '100vh', background: '#151b24' }} className="p-4 sm:p-6 lg:p-8">
+              <Navbar />
+              <div className="mx-auto max-w-7xl pt-4">
+                <MaintenanceRequestsPage />
+              </div>
+            </div>
+          </ProtectedRoute>
+      )} />
+      <Route path="/maintenance/new" element={(
+          <ProtectedRoute>
+            <div style={{ minHeight: '100vh', background: '#151b24' }} className="p-4 sm:p-6 lg:p-8">
+              <Navbar />
+              <div className="mx-auto max-w-7xl pt-4">
+                <CreateMaintenancePage />
+              </div>
+            </div>
+          </ProtectedRoute>
+      )} />
+      <Route path="/maintenance/analytics" element={(
+          <ProtectedRoute allowedRoles={['ADMIN', 'OPERATOR']}>
+            <div style={{ minHeight: '100vh', background: '#151b24' }} className="p-4 sm:p-6 lg:p-8">
+              <Navbar />
+              <div className="mx-auto max-w-7xl pt-4">
+                <MaintenanceAnalytics />
+              </div>
+            </div>
+          </ProtectedRoute>
+      )} />
+      <Route path="/maintenance/:id" element={(
+          <ProtectedRoute>
+            <div style={{ minHeight: '100vh', background: '#151b24' }} className="p-4 sm:p-6 lg:p-8">
+              <Navbar />
+              <div className="mx-auto max-w-7xl pt-4">
+                <MaintenanceDetailsPage />
+              </div>
+            </div>
+          </ProtectedRoute>
+      )} />
+      <Route path="*" element={<Navigate replace to={home} />} />
+    </Routes>
+  );
 };
+
+const queryClient = new QueryClient();
 
 export const App: React.FC = () => {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <AppRoutes />
-      </AuthProvider>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <AppRoutes />
+        </AuthProvider>
+      </QueryClientProvider>
     </BrowserRouter>
   );
 };

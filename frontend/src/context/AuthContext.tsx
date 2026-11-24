@@ -1,10 +1,10 @@
+import { useQueryClient } from '@tanstack/react-query';
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User, LoginCredentials, RegisterData } from '../types/auth';
 import { authService } from '../services/auth';
 
 interface AuthContextType {
   user: User | null;
-  token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (credentials: LoginCredentials) => Promise<User>;
@@ -16,24 +16,21 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(authService.getStoredUser());
-  const [token, setToken] = useState<string | null>(authService.getStoredToken());
+  const queryClient = useQueryClient();
+  const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
     async function loadUser() {
-      if (authService.isAuthenticated()) {
-        try {
-          const freshUser = await authService.getMe();
-          setUser(freshUser);
-        } catch (error) {
-          // Token invalid or expired
-          authService.logout();
-          setUser(null);
-          setToken(null);
-        }
+      localStorage.removeItem('ev_token');
+      localStorage.removeItem('ev_user');
+      try {
+        setUser(await authService.getMe());
+      } catch {
+        setUser(null);
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     }
     loadUser();
   }, []);
@@ -41,7 +38,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (credentials: LoginCredentials): Promise<User> => {
     const res = await authService.login(credentials);
     setUser(res.user);
-    setToken(res.access_token);
     return res.user;
   };
 
@@ -51,8 +47,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async (): Promise<void> => {
     await authService.logout();
+    queryClient.clear();
     setUser(null);
-    setToken(null);
   };
 
   const updateProfile = async (data: { full_name?: string; phone?: string }): Promise<User> => {
@@ -65,8 +61,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     <AuthContext.Provider
       value={{
         user,
-        token,
-        isAuthenticated: !!token && !!user,
+        isAuthenticated: !!user,
         isLoading,
         login,
         register,
@@ -86,4 +81,3 @@ export const useAuth = (): AuthContextType => {
   }
   return context;
 };
-

@@ -66,7 +66,7 @@ Authenticate with email and password to receive a JWT access token.
 - **Response (200 OK):**
   ```json
   {
-    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "access_token": "<issued JWT>",
     "token_type": "bearer",
     "user": {
       "user_id": 6,

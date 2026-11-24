@@ -1,74 +1,65 @@
-"""
-Pytest Fixtures for Module 3 Testing.
-Uses an isolated in-memory SQLite database to guarantee that the live
-PostgreSQL 18 database (ev_charging_network) and its 54 records remain 100% untouched.
-"""
+"""Run the API suite against a dedicated, disposable PostgreSQL database."""
+
+import os
+import secrets
+from pathlib import Path
+from typing import Generator
 
 import pytest
-from typing import Generator
+from alembic import command
+from alembic.config import Config
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine, text
-from sqlalchemy.orm import sessionmaker, Session
-from sqlalchemy.pool import StaticPool
+from sqlalchemy import text
+from sqlalchemy.engine import make_url
+from sqlalchemy.orm import Session
 
-from backend.app.core.database import Base, get_db
-from backend.app.core.security import get_password_hash
-from backend.app.models.user import User
-from backend.app.main import app
+url = os.environ.get("TEST_DATABASE_URL", "")
+if not url:
+    raise pytest.UsageError("Set TEST_DATABASE_URL to a dedicated PostgreSQL database named ev_test_*.")
+parsed = make_url(url)
+if parsed.drivername != "postgresql+psycopg" or not (parsed.database or "").startswith("ev_test_"):
+    raise pytest.UsageError("TEST_DATABASE_URL must use psycopg and a disposable ev_test_* database.")
+os.environ["DATABASE_URL"] = url
+os.environ["SECRET_KEY"] = secrets.token_urlsafe(48)
 
-# 1. In-memory SQLite Test Database Engine
-TEST_DATABASE_URL = "sqlite:///:memory:"
-
-test_engine = create_engine(
-    TEST_DATABASE_URL,
-    connect_args={"check_same_thread": False},
-    poolclass=StaticPool
-)
-
-TestingSessionLocal = sessionmaker(
-    autocommit=False,
-    autoflush=False,
-    bind=test_engine,
-    expire_on_commit=False
-)
+from backend.app.core.database import Base, SessionLocal, engine, get_db  # noqa: E402
+from backend.app.core.security import get_password_hash  # noqa: E402
+from backend.app.main import app  # noqa: E402
+from backend.app.models.user import User  # noqa: E402
 
 
 @pytest.fixture(scope="session", autouse=True)
 def setup_test_database():
-    """Create all 14 tables in the isolated in-memory test database."""
-    Base.metadata.create_all(bind=test_engine)
+    root = Path(__file__).resolve().parents[2]
+    command.upgrade(Config(str(root / "alembic.ini")), "head")
     yield
-    Base.metadata.drop_all(bind=test_engine)
+    engine.dispose()
 
 
 @pytest.fixture
 def db_session() -> Generator[Session, None, None]:
-    """Provides a fresh isolated database session for each test."""
-    session = TestingSessionLocal()
-    try:
-        yield session
-    finally:
-        session.rollback()
-        # Wipe rows in test DB between tests
-        for table in reversed(Base.metadata.sorted_tables):
-            session.execute(table.delete())
+    with SessionLocal() as session:
+        tables = ", ".join(f'"{table.name}"' for table in Base.metadata.sorted_tables)
+        session.execute(text(f"TRUNCATE {tables} RESTART IDENTITY"))
         session.commit()
-        session.close()
+        yield session
 
 
 @pytest.fixture
 def client(db_session: Session) -> Generator[TestClient, None, None]:
-    """FastAPI TestClient with overridden get_db dependency pointing to the test database."""
     def override_get_db():
         try:
             yield db_session
-        finally:
-            pass
+        except Exception:
+            db_session.rollback()
+            raise
 
     app.dependency_overrides[get_db] = override_get_db
-    with TestClient(app) as test_client:
-        yield test_client
-    app.dependency_overrides.clear()
+    try:
+        with TestClient(app) as test_client:
+            yield test_client
+    finally:
+        app.dependency_overrides.pop(get_db, None)
 
 
 @pytest.fixture

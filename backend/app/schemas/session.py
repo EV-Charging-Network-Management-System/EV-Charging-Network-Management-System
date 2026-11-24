@@ -114,3 +114,11 @@ class SessionResponse(BaseModel):
     charger: Optional[SessionChargerInfo] = None
     tariff: Optional[SessionTariffInfo] = None
     estimated_cost: Optional[Decimal] = None
+
+
+class MeterReadingResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    recorded_at: datetime
+    energy_kwh: Decimal | None
+    power_kw: Decimal | None

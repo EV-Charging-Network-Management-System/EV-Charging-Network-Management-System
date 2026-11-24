@@ -2,8 +2,7 @@
 Automated Integration and Unit Tests for Module 7:
 Reservation Management and Slot Conflict Engine.
 
-Tests execute against an isolated in-memory SQLite database to ensure the live
-PostgreSQL 18 database (ev_charging_network) and its 54 records remain 100% untouched.
+Tests run against an isolated PostgreSQL database.
 """
 
 import pytest
@@ -613,3 +612,130 @@ def test_admin_has_full_reservation_access(
     cancel_res = client.patch(f"/api/v1/reservations/{r1.reservation_id}/cancel", headers=get_auth_headers(test_admin))
     assert cancel_res.status_code == 200
     assert cancel_res.json()["status"] == "CANCELLED"
+
+def test_two_simultaneous_bookings_return_one_conflict(test_setup, test_customer):
+    from concurrent.futures import ThreadPoolExecutor
+    from threading import Barrier
+
+    from sqlalchemy import func, select
+
+    from backend.app.core.database import SessionLocal
+    from backend.app.main import app
+
+    start, end = get_slot()
+    payload = {
+        "vehicle_id": test_setup["vehicles"][0].vehicle_id,
+        "charger_id": test_setup["chargers"][0].charger_id,
+        "start_at": start.isoformat(),
+        "end_at": end.isoformat(),
+    }
+    headers = get_auth_headers(test_customer)
+    ready = Barrier(2)
+
+    def book():
+        with TestClient(app) as browser:
+            ready.wait(timeout=10)
+            return browser.post("/api/v1/reservations", json=payload, headers=headers).status_code
+
+    with ThreadPoolExecutor(max_workers=2) as workers:
+        assert sorted(workers.map(lambda _: book(), range(2))) == [201, 409]
+
+    with SessionLocal() as session:
+        assert session.scalar(select(func.count()).select_from(Reservation)) == 1
+
+
+def test_postgres_rejects_overlapping_bookings_outside_api(db_session, test_setup, test_customer):
+    from sqlalchemy.exc import IntegrityError
+
+    start, end = get_slot()
+    vehicle_id = test_setup["vehicles"][0].vehicle_id
+    charger_id = test_setup["chargers"][0].charger_id
+
+    def reservation(start_at, end_at):
+        return Reservation(user_id=test_customer.user_id, vehicle_id=vehicle_id,
+                           charger_id=charger_id, start_at=start_at, end_at=end_at,
+                           status="CONFIRMED")
+
+    db_session.add(reservation(start, end))
+    db_session.commit()
+    db_session.add(reservation(start + timedelta(minutes=10), end + timedelta(minutes=10)))
+    with pytest.raises(IntegrityError) as failure:
+        db_session.commit()
+    assert failure.value.orig.sqlstate == "23P01"
+    db_session.rollback()
+    db_session.add(reservation(end, end + timedelta(hours=1)))
+    db_session.commit()
+
+
+def test_ocpp_charger_reports_session_and_meter_data(db_session, test_setup, test_customer, monkeypatch):
+    import base64
+    from contextlib import closing
+
+    from fastapi.testclient import TestClient
+    from sqlalchemy import select
+
+    from backend.app.api.session_stream import session_updates
+    from backend.app.core.charger_config import ChargerDevice
+    from backend.app.core.config import settings
+    from backend.app.core.database import SessionLocal
+    from backend.app.main import app
+    from backend.app.models.meter_reading import MeterReading
+
+    charger = test_setup["chargers"][0]
+    now = datetime.now(timezone.utc)
+    reservation = Reservation(
+        user_id=test_customer.user_id, vehicle_id=test_setup["vehicles"][0].vehicle_id,
+        charger_id=charger.charger_id, status="CONFIRMED",
+        start_at=now - timedelta(minutes=1), end_at=now + timedelta(hours=1),
+    )
+    db_session.add(reservation)
+    db_session.commit()
+    password = "test-device-only-credential-12345"
+    monkeypatch.setattr(settings, "OCPP_DEVICES", {
+        charger.charger_id: ChargerDevice(password=password, driver_tags={"driver-a": test_customer.user_id}),
+    })
+    auth = base64.b64encode(f"{charger.charger_id}:{password}".encode()).decode()
+    path = f"/ocpp/{charger.charger_id}"
+    with TestClient(app) as browser:
+        with browser.websocket_connect(path, subprotocols=["ocpp1.6"], headers={"Authorization": f"Basic {auth}"}) as socket:
+            def call(action, payload):
+                socket.send_json([2, action, action, payload])
+                return socket.receive_json()
+
+            assert call("BootNotification", {"chargePointVendor": "Test", "chargePointModel": "Test"})[2]["status"] == "Accepted"
+            assert call("StatusNotification", {"connectorId": 1, "status": "Available", "errorCode": "NoError"}) == [3, "StatusNotification", {}]
+            request = {
+                "connectorId": 1, "reservationId": reservation.reservation_id,
+                "idTag": "driver-a", "meterStart": 10000, "timestamp": now.isoformat(),
+            }
+            assert call("StartTransaction", {**request, "idTag": "other"})[2]["transactionId"] == 0
+            reply = call("StartTransaction", request)
+            assert reply[0] == 3, reply
+            session_id = reply[2]["transactionId"]
+            assert call("StartTransaction", request)[2]["transactionId"] == session_id
+            reading = {
+                "connectorId": 1, "transactionId": session_id,
+                "meterValue": [{"timestamp": datetime.now(timezone.utc).isoformat(), "sampledValue": [
+                    {"value": "13000", "unit": "Wh"},
+                    {"value": "11000", "unit": "W", "measurand": "Power.Active.Import"},
+                ]}],
+            }
+            assert call("MeterValues", {**reading, "transactionId": session_id + 1})[2] == "SecurityError"
+            with closing(session_updates(session_id, 2)) as stream:
+                assert next(stream).startswith("event: changed")
+                assert call("MeterValues", reading)[0] == 3
+                assert next(stream).startswith("event: changed")
+            assert call("MeterValues", reading)[0] == 3
+            stop = {"transactionId": session_id, "meterStop": 14000, "timestamp": datetime.now(timezone.utc).isoformat()}
+            assert call("StopTransaction", {**stop, "meterStop": 12500})[2] == "PropertyConstraintViolation"
+            assert call("StopTransaction", stop)[0] == 3
+
+        readings = browser.get(f"/api/v1/sessions/{session_id}/meter-readings", headers=get_auth_headers(test_customer))
+        assert readings.status_code == 200
+        assert readings.json()[0]["energy_kwh"] == "13.000"
+
+    with SessionLocal() as db:
+        sample = db.scalars(select(MeterReading)).one()
+        assert sample.energy_kwh == Decimal("13.000")
+        assert sample.power_kw == Decimal("11.000")
+        assert db.get(ChargingSession, session_id).status == "COMPLETED"

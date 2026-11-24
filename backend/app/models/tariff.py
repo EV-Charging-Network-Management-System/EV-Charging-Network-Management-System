@@ -4,7 +4,7 @@ Maps to tables: 'tariffs' and 'pricing_rules'.
 """
 
 from datetime import datetime, time
-from typing import List, Optional
+from typing import TYPE_CHECKING, List, Optional
 from decimal import Decimal
 from sqlalchemy import (
     BigInteger, Integer, String, Numeric, Time, DateTime,
@@ -13,6 +13,12 @@ from sqlalchemy import (
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.app.core.database import Base
+
+
+if TYPE_CHECKING:
+    from backend.app.models.session import ChargingSession
+    from backend.app.models.vehicle import ConnectorType
+    from backend.app.models.station import Station
 
 
 class Tariff(Base):

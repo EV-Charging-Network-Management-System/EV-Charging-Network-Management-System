@@ -4,7 +4,7 @@ Maps to table: 'reservations'.
 """
 
 from datetime import datetime
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 from sqlalchemy import (
     BigInteger, Integer, String, DateTime,
     ForeignKey, CheckConstraint, text
@@ -12,6 +12,13 @@ from sqlalchemy import (
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.app.core.database import Base
+
+
+if TYPE_CHECKING:
+    from backend.app.models.station import Charger
+    from backend.app.models.session import ChargingSession
+    from backend.app.models.user import User
+    from backend.app.models.vehicle import Vehicle
 
 
 class Reservation(Base):

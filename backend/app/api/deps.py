@@ -3,7 +3,7 @@ FastAPI Dependencies for Authentication & Role-Based Access Control (RBAC).
 """
 
 from typing import Callable, List
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 import jwt
@@ -12,15 +12,31 @@ from backend.app.core.config import settings
 from backend.app.core.database import get_db
 from backend.app.core.security import decode_access_token
 from backend.app.models.user import User
+from backend.app.models.revoked_token import RevokedToken
 
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl=f"{settings.API_V1_STR}/auth/login",
-    auto_error=True
+    auto_error=False
 )
 
 
+ACCESS_COOKIE = "ev_access"
+BROWSER_HEADER = "X-EV-Browser"
+
+
+def get_access_token(request: Request, bearer: str | None = Depends(oauth2_scheme)) -> str:
+    if bearer:
+        return bearer
+    token = request.cookies.get(ACCESS_COOKIE)
+    if token:
+        if request.method not in {"GET", "HEAD", "OPTIONS"} and request.headers.get(BROWSER_HEADER) != "1":
+            raise HTTPException(status_code=403, detail="Missing browser request header.")
+        return token
+    raise HTTPException(status_code=401, detail="Authentication required.", headers={"WWW-Authenticate": "Bearer"})
+
+
 def get_current_user(
-    token: str = Depends(oauth2_scheme),
+    token: str = Depends(get_access_token),
     db: Session = Depends(get_db)
 ) -> User:
     """
@@ -40,6 +56,8 @@ def get_current_user(
         if user_id_str is None:
             raise credentials_exception
         user_id = int(user_id_str)
+        if db.get(RevokedToken, payload["jti"]) is not None:
+            raise credentials_exception
     except (jwt.PyJWTError, ValueError):
         raise credentials_exception
 

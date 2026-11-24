@@ -1,13 +1,30 @@
 import React, { useState, useEffect } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '../context/AuthContext';
+import { API_BASE_URL, apiRequest } from '../services/api';
 import { useParams, useNavigate } from '../router';
 import { sessionService } from '../services/session';
 import { ChargingSession } from '../types/session';
 import { EnergyConsumptionCard } from '../components/session/EnergyConsumptionCard';
 import { CompleteSessionForm } from '../components/session/CompleteSessionForm';
 
+type MeterReading = {
+  recorded_at: string;
+  energy_kwh: string | null;
+  power_kw: string | null;
+};
+
 export const SessionDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+  const queryKey = ['session-readings', user?.user_id, id];
+  const telemetry = useQuery({
+    queryKey,
+    queryFn: () => apiRequest<MeterReading[]>(`/sessions/${id}/meter-readings?limit=25`),
+    enabled: Boolean(id && user),
+  });
 
   const [session, setSession] = useState<ChargingSession | null>(null);
   const [loading, setLoading] = useState(true);
@@ -33,6 +50,22 @@ export const SessionDetailsPage: React.FC = () => {
   useEffect(() => {
     fetchSession();
   }, [id]);
+
+  useEffect(() => {
+    if (!id || !user || session?.status !== 'ACTIVE') return;
+    const stream = new EventSource(`${API_BASE_URL}/sessions/${id}/events`, { withCredentials: true });
+    let mounted = true;
+    stream.addEventListener('changed', () => {
+      void queryClient.invalidateQueries({ queryKey: ['session-readings', user.user_id, id] });
+      void sessionService.getSession(Number(id)).then(updated => {
+        if (mounted) setSession(updated);
+      }).catch(() => undefined);
+    });
+    return () => {
+      mounted = false;
+      stream.close();
+    };
+  }, [id, user, session?.status, queryClient]);
 
   const handleCompleteSubmit = async (meterEndKwh: number) => {
     if (!session) return;
@@ -170,6 +203,28 @@ export const SessionDetailsPage: React.FC = () => {
 
       {/* Energy Telemetry Card */}
       <EnergyConsumptionCard session={session} />
+
+      <section aria-label="Charger meter readings" className="rounded-xl border border-slate-600 bg-slate-800 p-4 text-slate-100">
+        <h2 className="font-semibold">Charger meter readings</h2>
+        {telemetry.isPending && <p role="status">Loading readings…</p>}
+        {telemetry.isError && <p role="alert">Could not load the charger readings.</p>}
+        {telemetry.data?.length === 0 && <p>This session has no device readings yet.</p>}
+        {Boolean(telemetry.data?.length) && (
+          <div className="overflow-x-auto">
+            <table className="mt-3 w-full text-left text-sm">
+              <thead><tr><th scope="col">Recorded</th><th scope="col">Meter (kWh)</th><th scope="col">Power (kW)</th></tr></thead>
+              <tbody>
+                {telemetry.data?.map(sample => (
+                  <tr key={sample.recorded_at}>
+                    <td className="py-2">{new Date(sample.recorded_at).toLocaleTimeString()}</td>
+                    <td>{sample.energy_kwh ?? '—'}</td><td>{sample.power_kw ?? '—'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
 
       {/* Details Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

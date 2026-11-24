@@ -324,3 +324,7 @@
 **Indexes:**
 - `charger_status_history_pkey`: `CREATE UNIQUE INDEX charger_status_history_pkey ON public.charger_status_history USING btree (history_id)`
 - `idx_charger_history_charger_time`: `CREATE INDEX idx_charger_history_charger_time ON public.charger_status_history USING btree (charger_id, changed_at DESC)`
+
+## Managed migrations
+
+Alembic revision `0001_base` installs the 14 domain tables described above. Later revisions add the active-reservation exclusion constraint, the revoked access token table and timestamped charger meter readings. Use `alembic upgrade head` for new environments. See the README before adopting Alembic on a database created by the historical SQL scripts.

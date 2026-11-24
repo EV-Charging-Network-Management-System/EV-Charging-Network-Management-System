@@ -1,0 +1,56 @@
+x-backend: &backend
+  build:
+    context: .
+    dockerfile: backend/Dockerfile
+  environment:
+    DB_HOST: db
+    DB_NAME: ev_charging_network
+    DB_USER: ev_charging
+    DB_PASSWORD: ${COMPOSE_DB_PASSWORD:-local-compose-db}
+    SECRET_KEY: ${SECRET_KEY:?Set a random SECRET_KEY in .env}
+    SECURE_COOKIES: ${SECURE_COOKIES:-false}
+    OCPP_DEVICES: "${OCPP_DEVICES:-}"
+
+services:
+  db:
+    image: postgres:18
+    environment:
+      POSTGRES_DB: ev_charging_network
+      POSTGRES_USER: ev_charging
+      POSTGRES_PASSWORD: ${COMPOSE_DB_PASSWORD:-local-compose-db}
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "ev_charging", "-d", "ev_charging_network"]
+      interval: 3s
+      timeout: 3s
+      retries: 15
+
+  init:
+    <<: *backend
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["sh", "-ec", "alembic upgrade head && python -m database.seed.demo --confirm-demo-database"]
+
+  api:
+    <<: *backend
+    depends_on:
+      init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)"]
+      interval: 5s
+      timeout: 4s
+      retries: 12
+
+  frontend:
+    build: frontend
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:8080:80"
+
+volumes:
+  postgres_data:
