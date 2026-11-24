@@ -15,6 +15,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import select, and_, or_
 from fastapi import HTTPException, status
 
+from backend.app.api.pagination import Page
 from backend.app.models.user import User
 from backend.app.models.station import Station, Charger
 from backend.app.models.vehicle import Vehicle
@@ -34,6 +35,8 @@ from backend.app.schemas.session import (
 )
 from backend.app.services.session_events import notify_session
 from backend.app.services.pricing_service import (
+    calculate_station_demand,
+    round_currency,
     select_applicable_tariff,
     evaluate_pricing_rules,
     normalize_datetime
@@ -101,25 +104,34 @@ def format_session_response(
     tariff_info = None
     estimated_cost = None
     if session.tariff:
-        # Determine pricing rule snapshot at session start
-        try:
-            rule_multiplier, active_rule = evaluate_pricing_rules(
-                tariff=session.tariff,
-                target_time=session.started_at,
-                station_demand_percent=Decimal("0.00")
-            )
-            effective_rate = (session.tariff.base_price_per_kwh * rule_multiplier).quantize(Decimal("0.01"))
-            rule_type = active_rule.rule_type if active_rule else "STANDARD"
-        except Exception:
-            rule_multiplier = Decimal("1.00")
-            effective_rate = session.tariff.base_price_per_kwh
-            rule_type = "STANDARD"
+        if session.applied_rate_per_kwh is not None:
+            base_rate = session.locked_base_price_per_kwh
+            session_fee = session.locked_session_fee
+            tax_rate = session.locked_tax_rate_percent
+            effective_rate = session.applied_rate_per_kwh
+            rule_multiplier = session.applied_multiplier
+            rule_type = session.applied_rule_type
+        else:
+            # Existing sessions have no historical snapshot to recover.
+            base_rate = session.tariff.base_price_per_kwh
+            session_fee = session.tariff.session_fee
+            tax_rate = session.tariff.tax_rate_percent
+            try:
+                rule_multiplier, active_rule = evaluate_pricing_rules(
+                    tariff=session.tariff,
+                    target_time=session.started_at,
+                    station_demand_percent=Decimal("0.00"),
+                )
+                rule_type = active_rule.rule_type if active_rule else "STANDARD"
+            except ValueError:
+                rule_multiplier, rule_type = Decimal("1.000"), "STANDARD"
+            effective_rate = round_currency(base_rate * rule_multiplier)
 
         tariff_info = SessionTariffInfo(
             tariff_id=session.tariff.tariff_id,
-            base_price_per_kwh=session.tariff.base_price_per_kwh,
-            session_fee=session.tariff.session_fee,
-            tax_rate_percent=session.tariff.tax_rate_percent,
+            base_price_per_kwh=base_rate,
+            session_fee=session_fee,
+            tax_rate_percent=tax_rate,
             effective_rate_per_kwh=effective_rate,
             multiplier=rule_multiplier,
             applied_rule_type=rule_type
@@ -128,10 +140,10 @@ def format_session_response(
         if session.energy_consumed_kwh is not None:
             estimated_cost = calculate_session_cost(
                 energy_kwh=session.energy_consumed_kwh,
-                base_price_per_kwh=session.tariff.base_price_per_kwh,
-                multiplier=rule_multiplier,
-                session_fee=session.tariff.session_fee,
-                tax_rate_percent=session.tariff.tax_rate_percent
+                base_price_per_kwh=effective_rate,
+                multiplier=Decimal("1"),
+                session_fee=session_fee,
+                tax_rate_percent=tax_rate
             )
 
     return SessionResponse(
@@ -159,7 +171,9 @@ def format_session_response(
 def start_charging_session(
     payload: SessionStartRequest,
     current_user: User,
-    db: Session
+    db: Session,
+    *,
+    commit: bool = True,
 ) -> SessionResponse:
     """
     Start an electric vehicle charging session transactionally.
@@ -246,7 +260,10 @@ def start_charging_session(
 
     # 7. Reservation validation (Reservation-based vs Walk-in)
     if payload.reservation_id is not None:
-        reservation = db.get(Reservation, payload.reservation_id)
+        reservation = db.scalar(
+            select(Reservation).where(Reservation.reservation_id == payload.reservation_id)
+            .with_for_update(of=Reservation)
+        )
         if not reservation:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -333,13 +350,25 @@ def start_charging_session(
             detail=f"No active tariff found for station #{charger.station_id}."
         )
 
-    # 9. Create Charging Session
+    demand = calculate_station_demand(charger.station_id, now, now + timedelta(hours=1), db)
+    try:
+        multiplier, rule = evaluate_pricing_rules(tariff, now, demand["demand_percent"])
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+
+    # 9. Record the pricing that was accepted when charging began.
     session = ChargingSession(
         reservation_id=payload.reservation_id,
         user_id=current_user.user_id,
         vehicle_id=payload.vehicle_id,
         charger_id=payload.charger_id,
         tariff_id=tariff.tariff_id,
+        locked_base_price_per_kwh=tariff.base_price_per_kwh,
+        applied_rate_per_kwh=round_currency(tariff.base_price_per_kwh * multiplier),
+        locked_session_fee=tariff.session_fee,
+        locked_tax_rate_percent=tariff.tax_rate_percent,
+        applied_multiplier=multiplier,
+        applied_rule_type=rule.rule_type if rule else "STANDARD",
         started_at=now,
         ended_at=None,
         meter_start_kwh=payload.meter_start_kwh,
@@ -347,7 +376,10 @@ def start_charging_session(
         status="ACTIVE"
     )
     db.add(session)
-    db.commit()
+    if commit:
+        db.commit()
+    else:
+        db.flush()
     db.refresh(session)
 
     return format_session_response(session, db)
@@ -357,7 +389,9 @@ def complete_charging_session(
     session_id: int,
     payload: SessionCompleteRequest,
     current_user: User,
-    db: Session
+    db: Session,
+    *,
+    commit: bool = True,
 ) -> SessionResponse:
     """
     Complete an active charging session, record final meter reading, and calculate consumption.
@@ -416,7 +450,10 @@ def complete_charging_session(
             reservation.status = "COMPLETED"
 
     notify_session(db, session.session_id)
-    db.commit()
+    if commit:
+        db.commit()
+    else:
+        db.flush()
     db.refresh(session)
 
     return format_session_response(session, db)
@@ -426,7 +463,9 @@ def interrupt_charging_session(
     session_id: int,
     payload: SessionInterruptRequest,
     current_user: User,
-    db: Session
+    db: Session,
+    *,
+    commit: bool = True,
 ) -> SessionResponse:
     """
     Interrupt an active charging session due to user request, fault, or emergency stop.
@@ -486,7 +525,10 @@ def interrupt_charging_session(
             reservation.status = "COMPLETED"
 
     notify_session(db, session.session_id)
-    db.commit()
+    if commit:
+        db.commit()
+    else:
+        db.flush()
     db.refresh(session)
 
     return format_session_response(session, db)
@@ -535,7 +577,8 @@ def list_sessions(
     vehicle_id: Optional[int] = None,
     from_date: Optional[datetime] = None,
     to_date: Optional[datetime] = None,
-    active_only: bool = False
+    active_only: bool = False,
+    page: Page = Page(),
 ) -> List[SessionResponse]:
     """List charging sessions according to caller's role and search parameters."""
     query = select(ChargingSession)
@@ -567,7 +610,7 @@ def list_sessions(
     if to_date:
         query = query.where(ChargingSession.started_at <= to_date)
 
-    query = query.order_by(ChargingSession.started_at.desc())
+    query = page.apply(query.order_by(ChargingSession.started_at.desc(), ChargingSession.session_id.desc()))
     sessions = db.execute(query).scalars().all()
 
     return [format_session_response(s, db) for s in sessions]

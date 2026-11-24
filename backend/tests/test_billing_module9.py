@@ -919,3 +919,19 @@ def test_refund_validation_where_supported(
     )
     assert double_ref.status_code == 400
     assert "already been refunded" in double_ref.json()["detail"]
+
+def test_payment_idempotency_key_replays_after_invoice_is_paid(
+    client: TestClient, db_session: Session, test_setup: dict, test_customer: User
+):
+    session = create_completed_session(db_session, test_customer.user_id)
+    headers = get_auth_headers(test_customer)
+    invoice = client.post(f"/api/v1/invoices/generate/{session.session_id}", headers=headers)
+    path = f"/api/v1/invoices/{invoice.json()['invoice_id']}/payments"
+    payload = {"payment_method": "DEMO"}
+    key = {**headers, "Idempotency-Key": "same-payment-retry"}
+    first = client.post(path, json=payload, headers=key)
+    second = client.post(path, json=payload, headers=key)
+    assert first.status_code == second.status_code == 201
+    assert first.json() == second.json()
+    assert client.post(path, json={**payload, "amount": "5"}, headers=key).status_code == 409
+    assert len(client.get(path, headers=headers).json()) == 1

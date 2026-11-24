@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../context/AuthContext';
 import { billingService } from '../services/billing';
 import { RevenueReport } from '../types/billing';
 import { useNavigate } from '../router';
+
+const NetworkAnalytics = React.lazy(() => import('../components/analytics/NetworkAnalytics'));
 
 function csvCell(value: string | number): string {
   const cell = String(value);
@@ -156,6 +158,10 @@ export const RevenueReportsPage: React.FC = () => {
           <span className="text-[11px] text-slate-500 block mt-1">Preserved failed and reversed attempts</span>
         </div>
       </div>
+
+      <Suspense fallback={<p role="status">Loading analytics…</p>}>
+        <NetworkAnalytics userId={user?.user_id} revenue={report.monthly_revenue} />
+      </Suspense>
 
       {/* Station-Wise Revenue Table */}
       <div className="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-6 shadow-lg space-y-4">

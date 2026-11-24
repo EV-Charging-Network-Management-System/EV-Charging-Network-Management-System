@@ -602,3 +602,108 @@ def test_concurrent_session_start_attempts(
     assert r2.status_code == 409
     assert "already has an active charging session" in r2.json()["detail"].lower()
 
+
+def test_session_mutations_can_be_replayed(client, test_setup, test_customer):
+    key = {**get_auth_headers(test_customer), "Idempotency-Key": "retry-request-1"}
+    payload = {"vehicle_id": 1, "charger_id": 3, "meter_start_kwh": "25"}
+    first = client.post("/api/v1/sessions/start", json=payload, headers=key)
+    assert first.status_code == 201, first.text
+    assert client.post("/api/v1/sessions/start", json=payload, headers=key).json() == first.json()
+    assert client.post("/api/v1/sessions/start", json={**payload, "meter_start_kwh": "30"}, headers=key).status_code == 409
+
+    path = f"/api/v1/sessions/{first.json()['session_id']}/complete"
+    first_completion = client.post(path, json={"meter_end_kwh": "33"}, headers=key)
+    replay = client.post(path, json={"meter_end_kwh": "33"}, headers=key)
+    assert first_completion.status_code == replay.status_code == 200
+    assert first_completion.json() == replay.json()
+
+def test_invoice_uses_rate_accepted_at_session_start(client, db_session, test_setup, test_customer):
+    headers = get_auth_headers(test_customer)
+    start = client.post("/api/v1/sessions/start", headers=headers, json={
+        "vehicle_id": 1, "charger_id": 3, "meter_start_kwh": "10",
+    })
+    assert start.status_code == 201, start.text
+    session_id = start.json()["session_id"]
+    tariff = test_setup["tariff"]
+    tariff.base_price_per_kwh = Decimal("99.00")
+    tariff.session_fee = Decimal("500.00")
+    tariff.tax_rate_percent = Decimal("15.00")
+    db_session.commit()
+
+    complete = client.post(f"/api/v1/sessions/{session_id}/complete", headers=headers, json={"meter_end_kwh": "20"})
+    assert Decimal(complete.json()["tariff"]["effective_rate_per_kwh"]) == Decimal("12.00")
+    invoice = client.post(f"/api/v1/invoices/generate/{session_id}", headers=headers)
+    assert invoice.status_code == 201, invoice.text
+    assert Decimal(invoice.json()["price_per_kwh"]) == Decimal("12.00")
+    assert Decimal(invoice.json()["session_fee"]) == Decimal("10.00")
+    assert Decimal(invoice.json()["tax_rate_percent"]) == Decimal("5.00")
+
+
+def test_worker_expires_stale_bookings_flags_chargers_and_invoices_once(
+    db_session, test_setup, test_customer,
+):
+    from sqlalchemy import select
+
+    from backend.app.models.billing import Invoice
+    from backend.app.models.workflow import ChargerHeartbeat
+    from backend.app.worker import run_cycle
+
+    now = datetime.now(timezone.utc)
+    charger = test_setup["chargers"][0]
+    vehicle = test_setup["vehicles"][0]
+    reservation = Reservation(
+        user_id=test_customer.user_id, vehicle_id=vehicle.vehicle_id,
+        charger_id=charger.charger_id, start_at=now-timedelta(hours=2),
+        end_at=now-timedelta(hours=1), status="CONFIRMED",
+    )
+    session = ChargingSession(
+        user_id=test_customer.user_id, vehicle_id=vehicle.vehicle_id,
+        charger_id=charger.charger_id, tariff_id=test_setup["tariff"].tariff_id,
+        started_at=now-timedelta(hours=2), ended_at=now-timedelta(hours=1),
+        status="COMPLETED", meter_start_kwh=Decimal("0"), meter_end_kwh=Decimal("10"),
+    )
+    db_session.add_all([
+        reservation, session,
+        ChargerHeartbeat(charger_id=charger.charger_id, last_seen_at=now-timedelta(minutes=10)),
+    ])
+    db_session.commit()
+    run_cycle(now)
+    run_cycle(now)
+    db_session.refresh(reservation)
+    db_session.refresh(charger)
+    assert reservation.status == "NO_SHOW"
+    assert charger.operational_status == "OUT_OF_SERVICE"
+    assert len(db_session.scalars(select(Invoice).where(Invoice.session_id == session.session_id)).all()) == 1
+
+
+def test_network_kpis_only_include_managed_stations(client, test_setup, test_customer, test_operator, other_operator):
+    path = "/api/v1/admin/network-kpis"
+    assert client.get(path, headers=get_auth_headers(test_customer)).status_code == 403
+    response = client.get(path, headers=get_auth_headers(test_operator))
+    assert response.status_code == 200, response.text
+    assert len(response.json()["chargers"]) == 3
+    assert len(response.json()["hours"]) == 24
+    assert client.get(path, headers=get_auth_headers(other_operator)).json()["chargers"] == []
+
+def test_station_list_applies_filters_before_pagination(client, test_setup, test_customer):
+    headers = get_auth_headers(test_customer)
+    listing = client.get("/api/v1/chargers", headers=headers, params={"operational_status": "ONLINE"})
+    assert listing.status_code == 200
+    first_page = client.get("/api/v1/chargers", headers=headers, params={
+        "operational_status": "ONLINE", "limit": 1, "skip": 1,
+    })
+    assert first_page.status_code == 200, first_page.text
+    assert first_page.json() == listing.json()[1:2]
+    assert client.get("/api/v1/chargers", headers=headers, params={"limit": 0}).status_code == 422
+
+
+def test_charger_status_updates_trigger_live_notification(db_session, test_setup):
+    from contextlib import closing
+
+    from backend.app.api.session_stream import stream_updates
+
+    with closing(stream_updates("ev_chargers", 2)) as stream:
+        assert next(stream).startswith("event: changed")
+        test_setup["chargers"][0].operational_status = "OUT_OF_SERVICE"
+        db_session.commit()
+        assert next(stream).startswith("event: changed")

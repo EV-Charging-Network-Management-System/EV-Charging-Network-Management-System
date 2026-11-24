@@ -7,6 +7,7 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
 
+from backend.app.api.pagination import PageParam
 from backend.app.api.deps import get_current_active_user, get_db
 from backend.app.models.user import User
 from backend.app.schemas.billing import PaymentResponse, PaymentRefundRequest
@@ -25,6 +26,7 @@ router = APIRouter()
     summary="List payment records"
 )
 def get_payments(
+    page: PageParam,
     status: Optional[str] = Query(None, description="Filter by payment status (PENDING, SUCCESS, FAILED, REFUNDED)"),
     current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
@@ -38,7 +40,7 @@ def get_payments(
     return list_all_payments(
         current_user=current_user,
         db=db,
-        status_filter=status
+        status_filter=status, page=page
     )
 
 

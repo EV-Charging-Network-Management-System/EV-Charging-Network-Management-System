@@ -6,6 +6,8 @@ Aggregates authentication, user management, and health endpoints.
 from fastapi import APIRouter
 from backend.app.api.v1.endpoints import (
     auth,
+    audit,
+    analytics,
     users,
     health,
     vehicles,
@@ -68,3 +70,7 @@ api_router.include_router(payments.router, prefix="/payments", tags=["Payments &
 
 # Maintenance work order & diagnostics endpoints (/api/v1/maintenance, /reports/summary, /{id}/assign, /{id}/status)
 api_router.include_router(maintenance.router, prefix="/maintenance", tags=["Maintenance & Audit Trail"])
+
+api_router.include_router(audit.router, tags=["Audit"])
+
+api_router.include_router(analytics.router, tags=["Analytics"])

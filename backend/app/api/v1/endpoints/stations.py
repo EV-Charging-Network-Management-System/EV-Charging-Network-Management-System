@@ -9,6 +9,7 @@ from decimal import Decimal
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
+from backend.app.api.pagination import PageParam
 from backend.app.core.database import get_db
 from backend.app.api.deps import (
     get_current_active_user,
@@ -72,6 +73,7 @@ def build_station_response(station: Station) -> StationResponse:
     summary="List charging stations"
 )
 def list_stations(
+    page: PageParam,
     city: Optional[str] = Query(None, description="Filter by city name"),
     status: Optional[str] = Query(None, description="Filter by station status (ACTIVE/INACTIVE)"),
     operator_id: Optional[int] = Query(None, description="Filter by station operator ID"),
@@ -91,7 +93,7 @@ def list_stations(
     if operator_id is not None:
         query = query.filter(Station.operator_id == operator_id)
 
-    stations = query.order_by(Station.station_id.asc()).all()
+    stations = page.apply(query.order_by(Station.station_id.asc())).all()
     return [build_station_response(s) for s in stations]
 
 
@@ -101,6 +103,7 @@ def list_stations(
     summary="Search nearby charging stations by coordinates and radius"
 )
 def search_nearby_stations(
+    page: PageParam,
     latitude: float = Query(..., ge=-90.0, le=90.0, description="User latitude"),
     longitude: float = Query(..., ge=-180.0, le=180.0, description="User longitude"),
     radius_km: float = Query(10.0, gt=0.0, le=500.0, description="Search radius in kilometers"),
@@ -156,8 +159,8 @@ def search_nearby_stations(
         )
 
     # Sort ascending by distance
-    results.sort(key=lambda item: item.distance_km)
-    return results
+    results.sort(key=lambda item: (item.distance_km, item.station_id))
+    return page.slice(results)
 
 
 @router.post(

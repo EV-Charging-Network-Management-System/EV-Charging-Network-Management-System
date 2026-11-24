@@ -164,6 +164,8 @@ def dispatch(db: Session, charger_id: int, driver_tags: dict[str, int], action: 
         if action == "BootNotification":
             Boot.model_validate(payload)
             return {"status": "Accepted", "interval": 60, "currentTime": datetime.now(timezone.utc).isoformat()}
+        if action == "Heartbeat":
+            return {"currentTime": datetime.now(timezone.utc).isoformat()}
         if action == "StatusNotification":
             _status(db, charger_id, Status.model_validate(payload))
             return {}

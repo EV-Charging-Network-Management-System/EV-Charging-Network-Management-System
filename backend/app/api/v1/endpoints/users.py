@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 from backend.app.core.database import get_db
 from backend.app.api.deps import get_current_active_user, require_admin
 from backend.app.models.user import User
+from backend.app.models.workflow import AdminAuditEvent
 from backend.app.schemas.user import UserResponse, UserUpdateProfile, UserStatusUpdate
 
 router = APIRouter()
@@ -95,7 +96,7 @@ def update_user_status(
     Administrative endpoint to activate or deactivate a user account.
     Prevents self-deactivation by the acting admin.
     """
-    user = db.query(User).filter(User.user_id == user_id).first()
+    user = db.query(User).filter(User.user_id == user_id).with_for_update(of=User).first()
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -109,10 +110,12 @@ def update_user_status(
             detail="Administrators cannot deactivate their own active account."
         )
 
+    db.add(AdminAuditEvent(
+        actor_id=current_admin.user_id, action="user.status_changed", resource_id=user_id, details={"before": user.is_active, "after": status_in.is_active},
+    ))
     user.is_active = status_in.is_active
     db.add(user)
     db.commit()
     db.refresh(user)
 
     return user
-

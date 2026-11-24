@@ -10,6 +10,8 @@ from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from backend.app.api.pagination import PageParam
+from backend.app.services.idempotency import IdempotencyKey, run_idempotent
 from backend.app.core.database import get_db
 from backend.app.api.deps import get_current_active_user
 from backend.app.models.user import User
@@ -42,13 +44,19 @@ router = APIRouter()
 def start_session(
     payload: SessionStartRequest,
     current_user: User = Depends(get_current_active_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    idempotency_key: IdempotencyKey = None
 ):
     """Start an EV charging session transactionally with meter reading validation."""
-    return start_charging_session(
-        payload=payload,
-        current_user=current_user,
-        db=db
+    return run_idempotent(
+        db, current_user.user_id, "session.start", idempotency_key, payload,
+        lambda: start_charging_session(
+            payload=payload,
+            current_user=current_user,
+            db=db,
+            commit=idempotency_key is None,
+        ),
+        lambda saved: get_session_by_id(saved["session_id"], current_user, db),
     )
 
 
@@ -59,6 +67,7 @@ def start_session(
     description="Retrieve all currently in-progress charging sessions. Scoped by caller role."
 )
 def get_active_sessions(
+    page: PageParam,
     station_id: Optional[int] = Query(None, description="Filter by station ID"),
     current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
@@ -68,7 +77,7 @@ def get_active_sessions(
         current_user=current_user,
         db=db,
         station_id=station_id,
-        active_only=True
+        active_only=True, page=page
     )
 
 
@@ -79,6 +88,7 @@ def get_active_sessions(
     description="Retrieve charging session history with optional filtering by status, station, or vehicle."
 )
 def get_session_history(
+    page: PageParam,
     status_filter: Optional[str] = Query(None, alias="status", description="Filter by status (COMPLETED, INTERRUPTED, ACTIVE)"),
     station_id: Optional[int] = Query(None, description="Filter by station ID"),
     vehicle_id: Optional[int] = Query(None, description="Filter by vehicle ID"),
@@ -96,7 +106,7 @@ def get_session_history(
         vehicle_id=vehicle_id,
         from_date=from_date,
         to_date=to_date,
-        active_only=False
+        active_only=False, page=page
     )
 
 
@@ -129,14 +139,20 @@ def complete_session(
     session_id: int,
     payload: SessionCompleteRequest,
     current_user: User = Depends(get_current_active_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    idempotency_key: IdempotencyKey = None
 ):
     """Complete a session and calculate total consumption."""
-    return complete_charging_session(
-        session_id=session_id,
-        payload=payload,
-        current_user=current_user,
-        db=db
+    return run_idempotent(
+        db, current_user.user_id, f"session.complete:{session_id}", idempotency_key, payload,
+        lambda: complete_charging_session(
+            session_id=session_id,
+            payload=payload,
+            current_user=current_user,
+            db=db,
+            commit=idempotency_key is None,
+        ),
+        lambda saved: get_session_by_id(saved["session_id"], current_user, db),
     )
 
 
@@ -150,14 +166,20 @@ def interrupt_session(
     session_id: int,
     payload: SessionInterruptRequest,
     current_user: User = Depends(get_current_active_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    idempotency_key: IdempotencyKey = None
 ):
     """Interrupt a charging session and record final reading."""
-    return interrupt_charging_session(
-        session_id=session_id,
-        payload=payload,
-        current_user=current_user,
-        db=db
+    return run_idempotent(
+        db, current_user.user_id, f"session.interrupt:{session_id}", idempotency_key, payload,
+        lambda: interrupt_charging_session(
+            session_id=session_id,
+            payload=payload,
+            current_user=current_user,
+            db=db,
+            commit=idempotency_key is None,
+        ),
+        lambda saved: get_session_by_id(saved["session_id"], current_user, db),
     )
 
 

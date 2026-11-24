@@ -18,13 +18,13 @@ class UserRegister(BaseModel):
     full_name: str = Field(..., min_length=2, max_length=100)
     email: str = Field(..., pattern=EMAIL_PATTERN, max_length=150)
     phone: Optional[str] = Field(None, max_length=20)
-    password: str = Field(..., min_length=8, description="Password must be at least 8 characters")
+    password: str = Field(..., min_length=8, max_length=256, description="Password must be at least 8 characters")
 
 
 class UserLogin(BaseModel):
     """Credentials required for login."""
     email: str = Field(..., pattern=EMAIL_PATTERN, max_length=150)
-    password: str = Field(..., min_length=1)
+    password: str = Field(..., min_length=1, max_length=256)
 
 
 class TokenResponse(BaseModel):

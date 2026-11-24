@@ -10,12 +10,14 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 
+from backend.app.api.pagination import PageParam
 from backend.app.core.database import get_db
 from backend.app.api.deps import get_current_active_user, require_operator_or_admin
 from backend.app.models.user import User
 from backend.app.models.station import Station
 from backend.app.models.vehicle import ConnectorType
 from backend.app.models.tariff import Tariff
+from backend.app.models.workflow import AdminAuditEvent
 from backend.app.schemas.tariff import (
     TariffCreate,
     TariffUpdate,
@@ -49,6 +51,7 @@ def format_tariff_response(tariff: Tariff) -> TariffResponse:
     summary="List tariffs with optional filters"
 )
 def list_tariffs(
+    page: PageParam,
     station_id: Optional[int] = Query(None, description="Filter by station ID"),
     connector_type_id: Optional[int] = Query(None, description="Filter by connector type ID"),
     active_at: Optional[datetime] = Query(None, description="Filter tariffs active at this datetime"),
@@ -67,18 +70,10 @@ def list_tariffs(
     if connector_type_id is not None:
         query = query.where(Tariff.connector_type_id == connector_type_id)
 
-    tariffs = db.execute(query.order_by(Tariff.station_id.asc(), Tariff.tariff_id.asc())).scalars().all()
-
     if active_at is not None:
-        norm_active = normalize_datetime(active_at)
-        filtered = []
-        for t in tariffs:
-            t_from = normalize_datetime(t.valid_from)
-            t_to = normalize_datetime(t.valid_to) if t.valid_to is not None else None
-            if t_from <= norm_active and (t_to is None or t_to >= norm_active):
-                filtered.append(t)
-        tariffs = filtered
-
+        active = normalize_datetime(active_at)
+        query = query.where(Tariff.valid_from <= active, Tariff.valid_to.is_(None) | (Tariff.valid_to >= active))
+    tariffs = db.scalars(page.apply(query.order_by(Tariff.station_id, Tariff.tariff_id))).all()
     return [format_tariff_response(t) for t in tariffs]
 
 
@@ -145,6 +140,10 @@ def create_tariff(
         valid_to=payload.valid_to
     )
     db.add(tariff)
+    db.flush()
+    db.add(AdminAuditEvent(
+        actor_id=current_user.user_id, action="tariff.created", resource_id=tariff.tariff_id, details={"station_id": tariff.station_id, **payload.model_dump(mode="json", exclude={"station_id"})},
+    ))
     db.commit()
     db.refresh(tariff)
 
@@ -189,7 +188,7 @@ def update_tariff(
     Operators can only update tariffs for stations they operate. Admins can update any.
     Validates non-negative values and prevents temporal overlaps if dates change.
     """
-    tariff = db.get(Tariff, tariff_id)
+    tariff = db.scalar(select(Tariff).where(Tariff.tariff_id == tariff_id).with_for_update(of=Tariff))
     if not tariff:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -234,6 +233,9 @@ def update_tariff(
     if payload.tax_rate_percent is not None:
         tariff.tax_rate_percent = payload.tax_rate_percent
 
+    db.add(AdminAuditEvent(
+        actor_id=current_user.user_id, action="tariff.updated", resource_id=tariff_id, details=payload.model_dump(mode="json", exclude_none=True),
+    ))
     db.commit()
     db.refresh(tariff)
     return format_tariff_response(tariff)

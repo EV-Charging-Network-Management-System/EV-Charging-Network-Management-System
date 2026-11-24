@@ -50,6 +50,7 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(default=15, ge=1, le=15)
     SECURE_COOKIES: bool = True
     CORS_ORIGINS: list[str] = []
+    FRONTEND_DIRECTORY: Path | None = None
     OCPP_DEVICES: dict[int, ChargerDevice] = Field(default_factory=dict, repr=False)
 
     @field_validator("SECRET_KEY")

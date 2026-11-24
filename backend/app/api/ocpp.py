@@ -5,14 +5,17 @@ import binascii
 import hmac
 import json
 import logging
+from datetime import datetime, timezone
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
+from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.exc import SQLAlchemyError
 from starlette.concurrency import run_in_threadpool
 
 from backend.app.core.config import settings
 from backend.app.core.database import SessionLocal
 from backend.app.models.station import Charger
+from backend.app.models.workflow import ChargerHeartbeat
 from backend.app.services.ocpp_service import OcppError, dispatch
 
 router = APIRouter()
@@ -40,7 +43,16 @@ def _charger_exists(charger_id: int) -> bool:
 
 def _call(charger_id: int, action: str, payload: dict) -> dict:
     with SessionLocal() as db:
-        return dispatch(db, charger_id, settings.OCPP_DEVICES[charger_id].driver_tags, action, payload)
+        result = dispatch(db, charger_id, settings.OCPP_DEVICES[charger_id].driver_tags, action, payload)
+        current = datetime.now(timezone.utc)
+        statement = insert(ChargerHeartbeat).values(charger_id=charger_id, last_seen_at=current)
+        db.execute(statement.on_conflict_do_update(
+            index_elements=[ChargerHeartbeat.charger_id],
+            set_={"last_seen_at": current},
+            where=ChargerHeartbeat.last_seen_at < current,
+        ))
+        db.commit()
+        return result
 
 
 @router.websocket("/ocpp/{charger_id}")

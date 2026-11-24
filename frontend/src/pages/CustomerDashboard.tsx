@@ -1,74 +1,81 @@
-import React from 'react';
-import { useAuth } from '../context/AuthContext';
+import { useQuery } from '@tanstack/react-query';
+import { CalendarClock, MapPin, Plug, Zap } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { Navbar } from '../components/Navbar';
+import { useAuth } from '../context/AuthContext';
+import { reservationService } from '../services/reservation';
+import { sessionService } from '../services/session';
+import { vehicleService } from '../services/vehicle';
 
-export const CustomerDashboard: React.FC = () => {
+const dateFormat = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+
+export function CustomerDashboard() {
   const { user } = useAuth();
+  const id = user?.user_id;
+  const bookings = useQuery({
+    queryKey: ['driver-reservations', id],
+    queryFn: () => reservationService.listReservations(),
+  });
+  const vehicles = useQuery({
+    queryKey: ['driver-vehicles', id],
+    queryFn: () => vehicleService.listVehicles(),
+  });
+  const charging = useQuery({
+    queryKey: ['driver-sessions', id],
+    queryFn: () => sessionService.getActiveSessions(),
+  });
+
+  const upcoming = bookings.data?.filter(reservation =>
+    ['CONFIRMED', 'PENDING'].includes(reservation.status) && Date.parse(reservation.end_at) > Date.now(),
+  ).sort((a, b) => Date.parse(a.start_at) - Date.parse(b.start_at))[0];
+  const active = charging.data?.[0];
 
   return (
-    <div style={{ minHeight: '100vh', background: '#151b24', color: '#f8fafc', fontFamily: 'system-ui, sans-serif' }}>
+    <div className="driver-dashboard">
       <Navbar />
-      <div style={{ maxWidth: '1100px', margin: '2rem auto', padding: '0 1rem' }}>
-        <div style={{
-          background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(6, 182, 212, 0.05))',
-          border: '1px solid rgba(16, 185, 129, 0.3)',
-          borderRadius: '16px',
-          padding: '2rem',
-          marginBottom: '2rem'
-        }}>
-          <h1 style={{ fontSize: '1.8rem', fontWeight: 700, margin: '0 0 0.5rem 0' }}>
-            Welcome back, {user?.full_name}! ⚡
-          </h1>
-          <p style={{ color: '#94a3b8', margin: 0 }}>
-            Customer EV Portal • Registered Email: <strong>{user?.email}</strong>
-          </p>
+      <main className="driver-content">
+        <header>
+          <h1>Welcome, {user?.full_name}</h1>
+          <div className="driver-actions">
+            <Link className="driver-primary" to="/stations"><MapPin size={20} aria-hidden /> Find a charger</Link>
+            <Link to="/reservations/new"><CalendarClock size={20} aria-hidden /> Book a slot</Link>
+          </div>
+        </header>
+        <div className="driver-cards">
+          <section aria-labelledby="driver-booking">
+            <h2 id="driver-booking"><CalendarClock size={18} aria-hidden /> Next reservation</h2>
+            {bookings.isPending && <p role="status">Loading reservations…</p>}
+            {bookings.isError && <p role="alert">Could not load reservations. <button onClick={() => void bookings.refetch()}>Retry</button></p>}
+            {bookings.isSuccess && (upcoming ? (
+              <>
+                <p>{upcoming.station?.station_name ?? 'Charging station'}</p>
+                <p>{dateFormat.format(new Date(upcoming.start_at))}</p>
+                <Link to={`/reservations/${upcoming.reservation_id}`}>View booking</Link>
+              </>
+            ) : <p>No upcoming reservations.</p>)}
+          </section>
+          <section aria-labelledby="driver-session">
+            <h2 id="driver-session"><Zap size={18} aria-hidden /> Charging session</h2>
+            {charging.isPending && <p role="status">Loading sessions…</p>}
+            {charging.isError && <p role="alert">Could not load charging sessions. <button onClick={() => void charging.refetch()}>Retry</button></p>}
+            {charging.isSuccess && (active ? (
+              <>
+                <p>Charging at {active.station?.station_name ?? 'your station'}</p>
+                <Link to={`/sessions/${active.session_id}`}>View session</Link>
+              </>
+            ) : <p>No active charging session.</p>)}
+          </section>
+          <section aria-labelledby="driver-vehicles">
+            <h2 id="driver-vehicles"><Plug size={18} aria-hidden /> Your vehicles</h2>
+            {vehicles.isPending && <p role="status">Loading vehicles…</p>}
+            {vehicles.isError && <p role="alert">Could not load vehicles. <button onClick={() => void vehicles.refetch()}>Retry</button></p>}
+            {vehicles.isSuccess && (vehicles.data.length ? (
+              <p>{vehicles.data.length} registered {vehicles.data.length === 1 ? 'vehicle' : 'vehicles'}</p>
+            ) : <p>Add your first vehicle to check connector compatibility.</p>)}
+            <Link to="/vehicles">Manage vehicles</Link>
+          </section>
         </div>
-
-        {/* Quick Metrics */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
-          <div style={{ background: '#212b38', border: '1px solid #344153', borderRadius: '12px', padding: '1.5rem' }}>
-            <div style={{ color: '#94a3b8', fontSize: '0.85rem', fontWeight: 600 }}>Active Vehicle</div>
-            <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#79b9ad', marginTop: '0.5rem' }}>Tata Nexon EV</div>
-            <div style={{ fontSize: '0.8rem', color: '#64748b', marginTop: '0.25rem' }}>KA03EV1001 • CCS2 Compatible</div>
-          </div>
-          <div style={{ background: '#212b38', border: '1px solid #344153', borderRadius: '12px', padding: '1.5rem' }}>
-            <div style={{ color: '#94a3b8', fontSize: '0.85rem', fontWeight: 600 }}>Active Reservations</div>
-            <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#a4bed4', marginTop: '0.5rem' }}>1 Upcoming</div>
-            <div style={{ fontSize: '0.8rem', color: '#64748b', marginTop: '0.25rem' }}>Koramangala Station • Bay #1</div>
-          </div>
-          <div style={{ background: '#212b38', border: '1px solid #344153', borderRadius: '12px', padding: '1.5rem' }}>
-            <div style={{ color: '#94a3b8', fontSize: '0.85rem', fontWeight: 600 }}>Energy Delivered</div>
-            <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#a855f7', marginTop: '0.5rem' }}>14.75 kWh</div>
-            <div style={{ fontSize: '0.8rem', color: '#64748b', marginTop: '0.25rem' }}>Total ₹204.10 Billed & Paid</div>
-          </div>
-        </div>
-
-        {/* Service Modules Navigation */}
-        <div style={{ background: '#212b38', border: '1px solid #344153', borderRadius: '12px', padding: '1.5rem' }}>
-          <h3 style={{ fontSize: '1.1rem', margin: '0 0 1rem 0' }}>Quick Actions</h3>
-          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-            <button
-              onClick={() => window.location.href = '/vehicles'}
-              style={{ background: '#79b9ad', border: 'none', color: '#022c22', padding: '0.75rem 1.25rem', borderRadius: '8px', cursor: 'pointer', fontWeight: 700 }}
-            >
-              🚗 Manage My Vehicles
-            </button>
-            <button
-              onClick={() => window.location.href = '/vehicles/add'}
-              style={{ background: 'rgba(6, 182, 212, 0.15)', border: '1px solid #87a8c4', color: '#87a8c4', padding: '0.75rem 1.25rem', borderRadius: '8px', cursor: 'pointer', fontWeight: 600 }}
-            >
-              ⚡ + Register New EV
-            </button>
-            <button
-              onClick={() => window.location.href = '/profile'}
-              style={{ background: '#344153', border: '1px solid #334155', color: '#f8fafc', padding: '0.75rem 1.25rem', borderRadius: '8px', cursor: 'pointer', fontWeight: 600 }}
-            >
-              👤 Edit Profile
-            </button>
-          </div>
-        </div>
-      </div>
+      </main>
     </div>
   );
-};
-
+}

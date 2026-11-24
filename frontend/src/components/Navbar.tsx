@@ -19,6 +19,7 @@ export function Navbar() {
   if (!user) return null;
 
   const dashboard = '/' + user.role.toLowerCase();
+  const staffLinks = user.role === 'CUSTOMER' ? [] : [['/admin/revenue', 'Analytics']];
 
   return (
     <header className="app-header">
@@ -41,7 +42,7 @@ export function Navbar() {
         </div>
       </div>
       <nav className="app-nav" aria-label="Main navigation">
-        {[[dashboard, 'Dashboard'], ...links].map(([url, label]) => {
+        {[[dashboard, 'Dashboard'], ...links, ...staffLinks].map(([url, label]) => {
           const active = path === url || (url !== dashboard && path.startsWith(url + '/'));
           return <Link key={url} to={url} aria-current={active ? 'page' : undefined}>{label}</Link>;
         })}

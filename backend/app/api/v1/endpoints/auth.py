@@ -22,6 +22,7 @@ from backend.app.core.security import (
 from backend.app.api.deps import ACCESS_COOKIE, BROWSER_HEADER, get_access_token, get_current_active_user
 from backend.app.models.revoked_token import RevokedToken
 from backend.app.models.user import User
+from backend.app.services.login_limits import consume_login_attempt
 from backend.app.schemas.auth import UserRegister, UserLogin, TokenResponse, LogoutResponse
 from backend.app.schemas.user import UserResponse
 
@@ -99,6 +100,7 @@ def login(credentials: UserLogin, request: Request, response: Response, db: Sess
     - Returns safe user profile (without password hash).
     """
     normalized_email = credentials.email.strip().lower()
+    consume_login_attempt(db, normalized_email)
     user = db.query(User).filter(User.email == normalized_email).first()
 
     if not user or not verify_password(credentials.password, user.password_hash):

@@ -329,3 +329,37 @@ def test_browser_cookie_logout_revokes_the_same_bearer_token(client, test_custom
     assert client.post("/api/v1/auth/logout").status_code == 403
     assert client.post("/api/v1/auth/logout", headers={"X-EV-Browser": "1"}).status_code == 200
     assert client.get("/api/v1/auth/me", headers=bearer).status_code == 401
+
+def test_admin_status_changes_are_audited(client, test_admin, test_customer):
+    admin = create_access_token(test_admin.user_id, test_admin.email, test_admin.role)
+    customer = create_access_token(test_customer.user_id, test_customer.email, test_customer.role)
+    headers = {"Authorization": f"Bearer {admin}"}
+    audit = "/api/v1/admin/audit-events"
+    assert client.get(audit, headers={"Authorization": f"Bearer {customer}"}).status_code == 403
+    response = client.patch(
+        f"/api/v1/users/{test_customer.user_id}/status", json={"is_active": False}, headers=headers,
+    )
+    assert response.status_code == 200
+    events = client.get(audit, headers=headers).json()
+    assert len(events) == 1
+    event = events[0]
+    assert event["action"] == "user.status_changed"
+    assert event["actor_id"] == test_admin.user_id
+    assert event["resource_id"] == test_customer.user_id
+    assert event["details"] == {"before": True, "after": False}
+    assert client.get(audit, params={"before": event["event_id"]}, headers=headers).json() == []
+
+
+def test_login_is_throttled_after_consecutive_attempts(client, monkeypatch):
+    from backend.app.services import login_limits
+
+    monkeypatch.setattr(login_limits, "time", lambda: 310.0)
+    bad = {"email": "unregistered@example.com", "password": "incorrect"}
+    for _ in range(5):
+        assert client.post("/api/v1/auth/login", json=bad).status_code == 401
+    denied = client.post("/api/v1/auth/login", json=bad)
+    assert denied.status_code == 429
+    assert denied.headers["retry-after"] == "290"
+    assert client.post("/api/v1/auth/login", json={**bad, "email": "another@example.com"}).status_code == 401
+    monkeypatch.setattr(login_limits, "time", lambda: 600.0)
+    assert client.post("/api/v1/auth/login", json=bad).status_code == 401

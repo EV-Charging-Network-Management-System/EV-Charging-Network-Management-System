@@ -8,6 +8,7 @@ from decimal import Decimal
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
+from backend.app.api.pagination import PageParam
 from backend.app.core.database import get_db
 from backend.app.api.deps import get_current_active_user
 from backend.app.models.user import User
@@ -29,6 +30,7 @@ router = APIRouter()
     summary="List vehicles"
 )
 def list_vehicles(
+    page: PageParam,
     owner_user_id: Optional[int] = Query(None, description="Filter by owner ID (Admin/Operator only)"),
     current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
@@ -48,7 +50,7 @@ def list_vehicles(
         if owner_user_id is not None:
             query = query.filter(Vehicle.owner_user_id == owner_user_id)
 
-    vehicles = query.order_by(Vehicle.created_at.desc(), Vehicle.vehicle_id.desc()).all()
+    vehicles = page.apply(query.order_by(Vehicle.created_at.desc(), Vehicle.vehicle_id.desc())).all()
     return vehicles
 
 
@@ -220,6 +222,7 @@ def update_vehicle(
     summary="Get connectors supported by vehicle"
 )
 def get_vehicle_connectors(
+    page: PageParam,
     vehicle_id: int,
     current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
@@ -241,7 +244,7 @@ def get_vehicle_connectors(
             detail="Not authorized to access connectors for this vehicle"
         )
 
-    return vehicle.connector_types
+    return page.slice(sorted(vehicle.connector_types, key=lambda item: item.connector_type_id))
 
 
 @router.put(

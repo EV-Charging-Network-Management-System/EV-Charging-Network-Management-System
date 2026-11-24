@@ -63,16 +63,29 @@ jobs:
           docker compose up --build --wait -d
       - run: npm run test:e2e
 
-
   secrets:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
           persist-credentials: false
-      - name: Scan commit history
-        run: >-
-          docker run --rm -v "$PWD:/repo:ro"
-          -e GIT_CONFIG_COUNT=1 -e GIT_CONFIG_KEY_0=safe.directory -e GIT_CONFIG_VALUE_0=/repo
-          ghcr.io/gitleaks/gitleaks:v8.24.3 git /repo --redact=100
+      - name: Scan commits introduced by this change
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ ! "$BASE_SHA" =~ ^[0-9a-f]{40}$ || "$BASE_SHA" == "0000000000000000000000000000000000000000" ]]; then
+            if git show-ref --verify --quiet "refs/remotes/origin/$DEFAULT_BRANCH"; then
+              BASE_SHA=$(git merge-base "origin/$DEFAULT_BRANCH" HEAD)
+            else
+              docker run --rm -v "$PWD:/repo:ro" ghcr.io/gitleaks/gitleaks:v8.24.3 dir /repo --redact=100
+              exit
+            fi
+          fi
+          docker run --rm -v "$PWD:/repo:ro" \
+            -e GIT_CONFIG_COUNT=1 -e GIT_CONFIG_KEY_0=safe.directory -e GIT_CONFIG_VALUE_0=/repo \
+            ghcr.io/gitleaks/gitleaks:v8.24.3 git /repo --redact=100 "--log-opts=$BASE_SHA..HEAD"

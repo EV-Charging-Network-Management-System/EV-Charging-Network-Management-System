@@ -15,11 +15,13 @@ from sqlalchemy import select, func, and_
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 
+from backend.app.api.pagination import Page
 from backend.app.models.billing import Invoice, Payment
 from backend.app.models.session import ChargingSession
 from backend.app.models.station import Station, Charger
 from backend.app.models.tariff import Tariff
 from backend.app.models.user import User
+from backend.app.models.workflow import AdminAuditEvent
 from backend.app.schemas.billing import (
     InvoiceResponse,
     InvoiceCustomerInfo,
@@ -102,7 +104,7 @@ def format_invoice_response(invoice: Invoice) -> InvoiceResponse:
 
 def generate_invoice_for_session(
     session_id: int,
-    current_user: User,
+    current_user: User | None,
     db: Session
 ) -> InvoiceResponse:
     """
@@ -124,12 +126,12 @@ def generate_invoice_for_session(
         )
 
     # 2. Authorization Verification
-    if current_user.role == "CUSTOMER" and session_obj.user_id != current_user.user_id:
+    if current_user is not None and current_user.role == "CUSTOMER" and session_obj.user_id != current_user.user_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Forbidden: You can only generate invoices for your own charging sessions."
         )
-    elif current_user.role == "OPERATOR":
+    elif current_user is not None and current_user.role == "OPERATOR":
         if (
             session_obj.charger
             and session_obj.charger.station
@@ -172,8 +174,7 @@ def generate_invoice_for_session(
         )
 
     # 6. Retrieve Locked Pricing Snapshot Values
-    # Check if session has direct snapshot attributes (from proposal / future migration)
-    if hasattr(session_obj, "applied_rate_per_kwh") and session_obj.applied_rate_per_kwh is not None:
+    if session_obj.applied_rate_per_kwh is not None:
         price_per_kwh = quantize_currency(Decimal(str(session_obj.applied_rate_per_kwh)))
         session_fee = quantize_currency(Decimal(str(session_obj.locked_session_fee or "0.00")))
         tax_rate_percent = Decimal(str(session_obj.locked_tax_rate_percent or "0.00"))
@@ -288,7 +289,8 @@ def get_invoice_by_id(
 def list_invoices(
     current_user: User,
     db: Session,
-    status_filter: Optional[str] = None
+    status_filter: Optional[str] = None,
+    page: Page = Page(),
 ) -> List[InvoiceResponse]:
     """List invoices filtered by user role and optional payment status."""
     stmt = select(Invoice).join(ChargingSession, Invoice.session_id == ChargingSession.session_id)
@@ -303,7 +305,7 @@ def list_invoices(
     if status_filter:
         stmt = stmt.where(Invoice.status == status_filter.upper())
 
-    stmt = stmt.order_by(Invoice.issued_at.desc())
+    stmt = page.apply(stmt.order_by(Invoice.issued_at.desc(), Invoice.invoice_id.desc()))
     invoices = db.execute(stmt).scalars().all()
 
     return [format_invoice_response(inv) for inv in invoices]
@@ -312,16 +314,16 @@ def list_invoices(
 def list_invoice_payments(
     invoice_id: int,
     current_user: User,
-    db: Session
+    db: Session,
+    page: Page = Page(),
 ) -> List[PaymentResponse]:
     """Retrieve payment audit history for a specific invoice."""
     # Enforces invoice access rules
     get_invoice_by_id(invoice_id, current_user, db)
 
     payments = db.execute(
-        select(Payment)
-        .where(Payment.invoice_id == invoice_id)
-        .order_by(Payment.created_at.asc())
+        page.apply(select(Payment).where(Payment.invoice_id == invoice_id)
+                   .order_by(Payment.created_at.asc(), Payment.payment_id.asc()))
     ).scalars().all()
 
     return [PaymentResponse.model_validate(p) for p in payments]
@@ -391,7 +393,9 @@ def process_invoice_payment(
     invoice_id: int,
     payload: PaymentCreate,
     current_user: User,
-    db: Session
+    db: Session,
+    *,
+    commit: bool = True,
 ) -> PaymentResponse:
     """
     Process and reconcile an invoice payment attempt.
@@ -453,7 +457,10 @@ def process_invoice_payment(
 
     if remaining_balance <= Decimal("0.00"):
         invoice.status = "PAID"
-        db.commit()
+        if commit:
+            db.commit()
+        else:
+            db.flush()
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Overpayment prevented: Invoice #{invoice_id} has no remaining balance."
@@ -535,7 +542,10 @@ def process_invoice_payment(
             invoice.status = "UNPAID"
 
     try:
-        db.commit()
+        if commit:
+            db.commit()
+        else:
+            db.flush()
     except IntegrityError:
         db.rollback()
         raise HTTPException(
@@ -570,7 +580,8 @@ def get_payment_by_id(
 def list_all_payments(
     current_user: User,
     db: Session,
-    status_filter: Optional[str] = None
+    status_filter: Optional[str] = None,
+    page: Page = Page(),
 ) -> List[PaymentResponse]:
     """List payments with role-based visibility."""
     stmt = select(Payment).join(Invoice, Payment.invoice_id == Invoice.invoice_id).join(
@@ -587,7 +598,7 @@ def list_all_payments(
     if status_filter:
         stmt = stmt.where(Payment.status == status_filter.upper())
 
-    stmt = stmt.order_by(Payment.created_at.desc())
+    stmt = page.apply(stmt.order_by(Payment.created_at.desc(), Payment.payment_id.desc()))
     payments = db.execute(stmt).scalars().all()
 
     return [PaymentResponse.model_validate(p) for p in payments]
@@ -675,6 +686,9 @@ def refund_payment(
     if remaining_confirmed < invoice.total_amount:
         invoice.status = "UNPAID"
 
+    db.add(AdminAuditEvent(
+        actor_id=current_user.user_id, action="payment.refunded", resource_id=payment_id, details={"invoice_id": invoice.invoice_id, "amount": str(payment.amount)},
+    ))
     db.commit()
     db.refresh(payment)
     return PaymentResponse.model_validate(payment)
@@ -831,4 +845,3 @@ def get_revenue_report(
         payment_method_breakdown=payment_method_breakdown,
         note="Billed revenue represents total invoiced charges; collected revenue represents confirmed payments minus refunds.",
     )
-

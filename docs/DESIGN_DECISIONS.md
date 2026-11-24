@@ -6,7 +6,7 @@ Bookings occupy half-open intervals. A pending or confirmed booking excludes ano
 
 ## Billing snapshots
 
-An invoice preserves its energy, rate, fees and tax figures for reconciliation. Multiple payment attempts can refer to one invoice. A complete start-time tariff snapshot is a separate schema and workflow change. Treat the historical proposal scripts as design material.
+An invoice preserves its energy, rate, fees and tax figures for reconciliation. Multiple payment attempts can refer to one invoice. New sessions record the base rate, effective rate, multiplier, rule name, fee and tax at start. Older sessions retain the historical tariff fallback because their original terms cannot be reconstructed reliably.
 
 ## Synchronous SQLAlchemy
 

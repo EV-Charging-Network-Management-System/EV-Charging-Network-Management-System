@@ -1,33 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from '../router';
 import { stationService } from '../services/station';
-import { Charger } from '../types/station';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { API_BASE_URL } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import { ChargerStatusBadge } from '../components/ChargerStatusBadge';
 
 export const ChargersPage: React.FC = () => {
-  const [chargers, setChargers] = useState<Charger[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [statusFilter, setStatusFilter] = useState<string>('');
-
-  const fetchChargers = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await stationService.listChargers({
-        operational_status: statusFilter || undefined,
-      });
-      setChargers(data);
-    } catch (err: any) {
-      setError(err.message || 'Failed to load chargers');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [statusFilter, setStatusFilter] = useState('');
+  const { user } = useAuth();
+  const userId = user?.user_id;
+  const queryClient = useQueryClient();
+  const { data: chargers = [], isPending: loading, error } = useQuery({
+    queryKey: ['charger-inventory', userId, statusFilter],
+    queryFn: () => stationService.listChargers({ operational_status: statusFilter || undefined }),
+  });
 
   useEffect(() => {
-    fetchChargers();
-  }, [statusFilter]);
+    const stream = new EventSource(`${API_BASE_URL}/charger-events`, { withCredentials: true });
+    stream.addEventListener('changed', () => {
+      void queryClient.invalidateQueries({ queryKey: ['charger-inventory', userId] });
+    });
+    return () => stream.close();
+  }, [userId, queryClient]);
 
   return (
     <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '2rem 1rem' }}>
@@ -56,6 +51,7 @@ export const ChargersPage: React.FC = () => {
             <button
               key={st}
               onClick={() => setStatusFilter(st)}
+              aria-pressed={statusFilter === st}
               style={{
                 backgroundColor: statusFilter === st ? '#79b9ad' : '#212b38',
                 color: statusFilter === st ? '#151b24' : '#94a3b8',
@@ -84,7 +80,7 @@ export const ChargersPage: React.FC = () => {
             marginBottom: '1.5rem',
           }}
         >
-          {error}
+          {error.message}
         </div>
       )}
 
@@ -109,7 +105,7 @@ export const ChargersPage: React.FC = () => {
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 320px), 1fr))',
             gap: '1rem',
           }}
         >

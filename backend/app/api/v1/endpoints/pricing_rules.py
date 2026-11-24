@@ -8,6 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 
+from backend.app.api.pagination import PageParam
 from backend.app.core.database import get_db
 from backend.app.api.deps import get_current_active_user, require_operator_or_admin
 from backend.app.models.user import User
@@ -27,6 +28,7 @@ router = APIRouter()
     summary="List pricing rules with optional filters"
 )
 def list_pricing_rules(
+    page: PageParam,
     tariff_id: Optional[int] = Query(None, description="Filter by parent tariff ID"),
     rule_type: Optional[str] = Query(None, description="Filter by rule type (PEAK_HOUR, OFF_PEAK, HIGH_DEMAND)"),
     is_active: Optional[bool] = Query(None, description="Filter active/inactive rules"),
@@ -46,7 +48,7 @@ def list_pricing_rules(
     if is_active is not None:
         query = query.where(PricingRule.is_active == is_active)
 
-    rules = db.execute(query.order_by(PricingRule.priority.desc(), PricingRule.rule_id.asc())).scalars().all()
+    rules = db.execute(page.apply(query.order_by(PricingRule.priority.desc(), PricingRule.rule_id.asc()))).scalars().all()
     return rules
 
 

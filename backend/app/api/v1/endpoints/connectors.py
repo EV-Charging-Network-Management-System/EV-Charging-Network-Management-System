@@ -7,6 +7,7 @@ from typing import List
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
+from backend.app.api.pagination import PageParam
 from backend.app.core.database import get_db
 from backend.app.api.deps import get_current_active_user
 from backend.app.models.user import User
@@ -22,12 +23,13 @@ router = APIRouter()
     summary="List available connector types"
 )
 def list_connector_types(
+    page: PageParam,
     current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ) -> List[ConnectorType]:
     """
     Retrieve all standardized EV connector types supported by the network.
     """
-    connectors = db.query(ConnectorType).order_by(ConnectorType.connector_type_id.asc()).all()
+    connectors = page.apply(db.query(ConnectorType).order_by(ConnectorType.connector_type_id.asc())).all()
     return connectors
 

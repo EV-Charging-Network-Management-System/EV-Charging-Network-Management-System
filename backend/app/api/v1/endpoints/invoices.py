@@ -7,6 +7,7 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
 
+from backend.app.api.pagination import PageParam
 from backend.app.api.deps import get_current_active_user, get_db
 from backend.app.models.user import User
 from backend.app.schemas.billing import (
@@ -15,6 +16,7 @@ from backend.app.schemas.billing import (
     PaymentCreate,
     RevenueReportResponse,
 )
+from backend.app.services.idempotency import IdempotencyKey, run_idempotent
 from backend.app.services.billing_service import (
     generate_invoice_for_session,
     get_invoice_by_id,
@@ -56,6 +58,7 @@ def generate_invoice(
     summary="List invoices with RBAC filtering"
 )
 def get_invoices(
+    page: PageParam,
     status: Optional[str] = Query(None, description="Filter by status (UNPAID, PAID, VOID)"),
     current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
@@ -69,7 +72,7 @@ def get_invoices(
     return list_invoices(
         current_user=current_user,
         db=db,
-        status_filter=status
+        status_filter=status, page=page
     )
 
 
@@ -120,6 +123,7 @@ def get_invoice(
     summary="List payment transaction attempts for an invoice"
 )
 def get_invoice_payments(
+    page: PageParam,
     invoice_id: int,
     current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
@@ -130,7 +134,7 @@ def get_invoice_payments(
     return list_invoice_payments(
         invoice_id=invoice_id,
         current_user=current_user,
-        db=db
+        db=db, page=page
     )
 
 
@@ -144,17 +148,22 @@ def pay_invoice(
     invoice_id: int,
     payload: PaymentCreate,
     current_user: User = Depends(get_current_active_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    idempotency_key: IdempotencyKey = None
 ):
     """
     Process a payment attempt against an unpaid invoice.
     Acquires an exclusive row-level lock on the invoice to serialize
     concurrent payments, prevent overpayment, and record idempotency keys.
     """
-    return process_invoice_payment(
-        invoice_id=invoice_id,
-        payload=payload,
-        current_user=current_user,
-        db=db
+    return run_idempotent(
+        db, current_user.user_id, f"invoice.payment:{invoice_id}", idempotency_key, payload,
+        lambda: process_invoice_payment(
+            invoice_id=invoice_id,
+            payload=payload,
+            current_user=current_user,
+            db=db,
+            commit=idempotency_key is None,
+        ),
+        lambda _: get_invoice_by_id(invoice_id, current_user, db),
     )
-

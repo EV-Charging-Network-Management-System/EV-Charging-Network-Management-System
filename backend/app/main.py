@@ -9,11 +9,13 @@ from time import perf_counter
 from uuid import uuid4
 
 from fastapi import Depends, FastAPI, HTTPException, Request
+from fastapi.responses import FileResponse
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from backend.app.core.database import get_db
+from backend.app.core.frontend import FrontendFiles
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend.app.core.config import settings
@@ -24,6 +26,7 @@ from backend.app.api.session_stream import router as stream_router
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.VERSION,
+    max_body_size=1_048_576,
     description="Backend API for EV Charging Network Management System",
     openapi_url=f"{settings.API_V1_STR}/openapi.json",
     docs_url=f"{settings.API_V1_STR}/docs",
@@ -47,7 +50,9 @@ app.include_router(stream_router, prefix=settings.API_V1_STR)
 
 @app.get("/", tags=["Root"])
 def root_status():
-    """Root endpoint providing links to documentation and health check."""
+    """Serve the hosted UI or return API discovery links."""
+    if settings.FRONTEND_DIRECTORY is not None:
+        return FileResponse(settings.FRONTEND_DIRECTORY / "index.html")
     return {
         "project": settings.PROJECT_NAME,
         "version": settings.VERSION,
@@ -95,3 +100,7 @@ def readiness(db: Session = Depends(get_db)) -> dict[str, str]:
         raise HTTPException(status_code=503, detail="Database migrations pending.")
     return {"status": "ready"}
 
+
+
+if settings.FRONTEND_DIRECTORY is not None:
+    app.mount("/", FrontendFiles(directory=settings.FRONTEND_DIRECTORY), name="frontend")

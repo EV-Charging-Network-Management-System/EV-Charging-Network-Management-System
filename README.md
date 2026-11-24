@@ -40,8 +40,10 @@ For a database created using the original base SQL, back it up and verify that i
 ## Engineering decisions
 
 - **Concurrent bookings.** PostgreSQL excludes overlapping pending or confirmed reservations for the same charger. The half-open range allows a new booking to start as the previous one ends. Tests race two independent API requests and verify the constraint directly in SQL.
-- **Billing records.** Each session can have one invoice. It stores the figures used to bill the session, and each payment attempt is a separate record.
+- **Billing records.** The effective rate, pricing rule, fee and tax are captured when charging starts. Each invoice uses the captured terms, and each payment attempt is a separate record.
 - **Authentication.** Passwords use Argon2. Access tokens expire after 15 minutes and logout revokes the token in PostgreSQL. The browser stores its token in an HttpOnly cookie and signs in again when it expires.
+
+For a public demo, use the [free hosting setup](docs/HOSTED_DEMO.md). The app also supports [workflow safeguards and background jobs](docs/WORKFLOW_OPERATIONS.md).
 
 See [design decisions](docs/DESIGN_DECISIONS.md), [API reference](docs/API_REFERENCE.md), and [schema](docs/DATABASE_SCHEMA.md).
 
@@ -75,8 +77,8 @@ Use Conventional Commit subjects for new changes, such as `fix: reject overlappi
 
 ## Limitations and roadmap
 
-The manual charging workflow and simulated payments remain available. A configurable [charger simulator](docs/CHARGER_SIMULATOR.md) can start and stop a reserved session and record power and energy over OCPP 1.6J. The device integration covers a small simulator-focused subset. Session details receive live meter updates. The next releases can extend the work in three areas:
+The manual charging workflow and simulated payments remain available. The [charger simulator](docs/CHARGER_SIMULATOR.md) covers a subset of OCPP 1.6J. Live charger and session views use PostgreSQL notifications, so use a direct PostgreSQL connection.
 
-- Deploy a hosted demo, integrate Stripe test mode, and add background jobs for expiring reservations and checking charger liveness.
-- Extend filtering, pagination, ownership checks, idempotency and admin auditing across the remaining workflows.
-- Add station-wide live updates, richer mobile and analytics views, realistic history generation, demand forecasting, site power limits and load-test results.
+- Integrate Stripe test mode, add device-enforced site power limits and expand automated ownership checks across all endpoint types.
+- Grow demo history beyond the baseline seed and publish reproducible load-test results.
+- Broaden the accessibility audit, expand query caching on the remaining screens, and split the remaining large billing workflows.

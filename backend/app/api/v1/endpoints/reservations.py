@@ -11,6 +11,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 from sqlalchemy import select, and_, or_
 
+from backend.app.api.pagination import PageParam
 from backend.app.core.database import get_db
 from backend.app.api.deps import get_current_active_user
 from backend.app.models.user import User
@@ -107,6 +108,7 @@ def create_reservation(
     summary="List reservations with role-based access"
 )
 def list_reservations(
+    page: PageParam,
     station_id: Optional[int] = Query(None, description="Filter by station ID"),
     vehicle_id: Optional[int] = Query(None, description="Filter by vehicle ID"),
     status: Optional[str] = Query(None, description="Filter by status (CONFIRMED, PENDING, CANCELLED, etc.)"),
@@ -144,7 +146,7 @@ def list_reservations(
         query = query.where(Reservation.start_at <= norm_to)
 
     reservations = db.execute(
-        query.order_by(Reservation.start_at.desc(), Reservation.reservation_id.desc())
+        page.apply(query.order_by(Reservation.start_at.desc(), Reservation.reservation_id.desc()))
     ).scalars().all()
 
     return [format_reservation_response(r) for r in reservations]

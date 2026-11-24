@@ -145,3 +145,21 @@ input:focus, select:focus, textarea:focus, button:focus {
     break-inside: avoid;
   }
 }
+
+.driver-dashboard { min-height: 100vh; background: #151b24; color: #f8fafc; }
+.driver-content { max-width: 70rem; margin: auto; padding: clamp(1rem, 4vw, 3rem); }
+.driver-content h1 { font-size: clamp(1.5rem, 5vw, 2.4rem); margin: 0 0 1.2rem; }
+.driver-actions, .driver-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); gap: 1rem; }
+.driver-actions { margin-bottom: 1.5rem; }
+.driver-actions a { display: flex; align-items: center; justify-content: center; gap: .6rem; min-height: 3rem; border: 1px solid #66768a; border-radius: .7rem; color: #f8fafc; }
+.driver-actions .driver-primary { background: #79b9ad; color: #102520; font-weight: 700; }
+.driver-cards section, .network-analytics { border: 1px solid #445467; border-radius: .8rem; padding: 1rem; background: #212b38; color: #f8fafc; }
+.driver-cards h2 { display: flex; align-items: center; gap: .4rem; font-size: 1.05rem; margin: 0 0 .6rem; }
+.driver-cards p { color: #cbd5e1; margin: .4rem 0; }
+.driver-cards a, .driver-cards button { color: #a9ded0; text-decoration: underline; padding-block: .5rem; }
+.driver-dashboard a:focus-visible, .driver-dashboard button:focus-visible { outline: 2px solid #a9ded0; outline-offset: 3px; }
+.network-analytics dl, .analytics-charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr)); gap: 1rem; margin-top: 1rem; }
+.network-analytics dd { font-weight: 700; margin: 0; }
+.network-analytics summary { cursor: pointer; margin-top: .75rem; }
+.network-analytics table { width: 100%; text-align: left; margin-block: .75rem; }
+.network-analytics th, .network-analytics td { padding: .3rem; }

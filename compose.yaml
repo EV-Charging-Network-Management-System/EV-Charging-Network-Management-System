@@ -44,6 +44,14 @@ services:
       timeout: 4s
       retries: 12
 
+  worker:
+    <<: *backend
+    profiles: ["automation"]
+    depends_on:
+      init:
+        condition: service_completed_successfully
+    command: ["python", "-m", "backend.app.worker"]
+
   frontend:
     build: frontend
     depends_on:

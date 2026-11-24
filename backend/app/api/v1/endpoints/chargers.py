@@ -9,6 +9,7 @@ from decimal import Decimal
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
+from backend.app.api.pagination import PageParam
 from backend.app.core.database import get_db
 from backend.app.api.deps import get_current_active_user, require_operator_or_admin
 from backend.app.models.user import User
@@ -28,6 +29,7 @@ router = APIRouter()
     summary="List chargers"
 )
 def list_chargers(
+    page: PageParam,
     station_id: Optional[int] = Query(None, description="Filter by station ID"),
     connector_type_id: Optional[int] = Query(None, description="Filter by connector standard ID"),
     operational_status: Optional[str] = Query(None, description="Filter by operational status"),
@@ -46,7 +48,7 @@ def list_chargers(
     if operational_status:
         query = query.filter(Charger.operational_status == operational_status.strip().upper())
 
-    chargers = query.order_by(Charger.station_id.asc(), Charger.charger_id.asc()).all()
+    chargers = page.apply(query.order_by(Charger.station_id.asc(), Charger.charger_id.asc())).all()
     return chargers
 
 

@@ -1,0 +1,14 @@
+services:
+  - name: ev-charging-network-demo
+    type: web
+    runtime: docker
+    plan: free
+    dockerfilePath: ./deploy/Dockerfile
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: SECRET_KEY
+        generateValue: true
+      - key: SEED_SAMPLE_DATA
+        value: "true"

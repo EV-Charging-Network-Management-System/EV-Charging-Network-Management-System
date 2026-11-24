@@ -69,6 +69,13 @@ class ChargingSession(Base):
     meter_end_kwh: Mapped[Optional[Decimal]] = mapped_column(Numeric(12, 3), nullable=True)
     status: Mapped[str] = mapped_column(String(20), nullable=False, default="ACTIVE")
 
+    locked_base_price_per_kwh: Mapped[Decimal | None] = mapped_column(Numeric(10, 2))
+    applied_rate_per_kwh: Mapped[Decimal | None] = mapped_column(Numeric(14, 2))
+    locked_session_fee: Mapped[Decimal | None] = mapped_column(Numeric(10, 2))
+    locked_tax_rate_percent: Mapped[Decimal | None] = mapped_column(Numeric(5, 2))
+    applied_multiplier: Mapped[Decimal | None] = mapped_column(Numeric(6, 3))
+    applied_rule_type: Mapped[str | None] = mapped_column(String(24))
+
     # Relationships
     reservation: Mapped[Optional["Reservation"]] = relationship("Reservation", back_populates="session")
     user: Mapped["User"] = relationship("User", back_populates="sessions")
